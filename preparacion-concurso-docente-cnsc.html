@@ -44,8 +44,15 @@
   .subject-panel{max-height:0;overflow:hidden;transition:max-height .3s ease;border-top:1px solid var(--paper-2);}
   .subject-card.open .subject-panel{max-height:1200px;}
   .panel-inner{padding:16px 20px 20px;}
-  .theory-mini{font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;padding-bottom:14px;border-bottom:1px dashed var(--line);}
+  .theory-mini{font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;padding-bottom:4px;}
   .theory-mini b{color:var(--ink);}
+  .theory-heading{font-family:'Source Serif 4',serif;font-weight:600;font-size:16px;color:var(--ink);margin:0 0 12px;}
+  .article{display:flex;gap:14px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px dashed var(--line);}
+  .article:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+  .article-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--brick);white-space:normal;min-width:130px;max-width:130px;padding-top:1px;flex:none;}
+  .article-text{font-size:13.5px;color:var(--ink-soft);}
+  .article-text b{color:var(--ink);}
+  @media (max-width:600px){.article{flex-direction:column;gap:4px;}.article-tag{max-width:none;}}
   .theory-toggle{background:none;border:none;color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;padding:0;margin-bottom:10px;}
   .blocks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
   .block-chip{background:var(--paper);border:1px solid var(--line);padding:12px 12px;cursor:pointer;text-align:left;font-family:'IBM Plex Sans',sans-serif;}
@@ -95,7 +102,7 @@
   <div class="inner">
     <div class="eyebrow">Expediente No. 001-2026 · Concurso Docente CNSC</div>
     <h1>Preparación · Docente de Aula, Sistemas e Informática</h1>
-    <div class="subtitle">Réplica del examen real del ICFES/CNSC: mismos componentes y mismo número de preguntas (160 en total), pero dividido en bloques de ~10 preguntas para que avances por partes, cuando puedas.</div>
+    <div class="subtitle">Réplica de la estructura y proporción del examen real del ICFES/CNSC (172 preguntas en total, en la misma proporción por componente), dividida en bloques de ~10 preguntas con lectura previa, para que avances por partes, cuando puedas.</div>
     <div class="progress-strip">
       <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       <div class="progress-label" id="progressLabel">0 / 0 bloques completados</div>
@@ -142,7 +149,16 @@ const SUBJECTS = [
 
 { id:'legal', num:'00', title:'Marco Legal y Normativo', meta:'12 preguntas · fundamento jurídico del concurso',
   chunkSize:6,
-  theory:`<b>Decreto Ley 1278/2002</b> — Estatuto de Profesionalización Docente: ingreso por mérito, escalafón (grados 1-3), período de prueba de 4 meses, evaluación anual (mínimo 60%).<br><b>Ley 115/1994</b> — Ley General de Educación: fines, PEI, áreas obligatorias (incluye Tecnología e Informática).<br><b>Decreto 1075/2015</b> — Decreto Único Reglamentario del sector educación.<br><b>Decreto 1290/2009</b> — Autonomía institucional para el Sistema de Evaluación (SIEE).<br><b>Decreto 1421/2017</b> — Educación inclusiva, PIAR.<br><b>Ley 1620/2013</b> — Sistema Nacional de Convivencia Escolar.`,
+  theory:[
+    {tag:'Decreto Ley 1278/2002', text:'<b>Estatuto de Profesionalización Docente.</b> Regula el ingreso, ascenso y retiro del servicio educativo estatal por concurso de méritos. Define el escalafón docente (grados 1 a 3, con niveles A-D), el período de prueba de 4 meses tras la posesión, y la evaluación anual de desempeño (mínimo 60% para permanecer). También establece la Evaluación de Carácter Diagnóstico Formativo (ECDF) para el ascenso o reubicación salarial.'},
+    {tag:'Ley 115/1994', text:'<b>Ley General de Educación.</b> Establece los fines de la educación, la estructura del servicio educativo (preescolar, básica, media), el Proyecto Educativo Institucional (PEI) y las áreas obligatorias del currículo, entre ellas Tecnología e Informática. Es la norma marco de todo el sistema educativo colombiano.'},
+    {tag:'Decreto 1075/2015', text:'<b>Decreto Único Reglamentario del Sector Educación.</b> Compila en un solo cuerpo normativo la reglamentación dispersa del sector: organización del servicio, currículo, evaluación institucional y régimen de personal docente.'},
+    {tag:'Decreto 1290/2009', text:'<b>Evaluación del aprendizaje y promoción.</b> Da autonomía a cada institución para definir su Sistema Institucional de Evaluación de Estudiantes (SIEE), con criterios, escalas y estrategias de apoyo para estudiantes con dificultades.'},
+    {tag:'Decreto 1421/2017', text:'<b>Atención educativa a población con discapacidad.</b> Obliga a los establecimientos a garantizar Planes Individuales de Ajustes Razonables (PIAR) y educación inclusiva dentro del aula regular; es base frecuente de preguntas de juicio situacional.'},
+    {tag:'Ley 1620/2013', text:'<b>Sistema Nacional de Convivencia Escolar.</b> Crea las rutas de atención integral para la convivencia escolar y la prevención del acoso, la violencia escolar y el embarazo adolescente. Da origen a los comités de convivencia institucionales.'},
+    {tag:'Manual de Funciones', text:'Define los requisitos de formación, experiencia y las competencias funcionales y comportamentales exigidas para cada cargo (docente de aula, orientador, coordinador, rector). Es la base de los requisitos de participación en la convocatoria.'},
+    {tag:'CNSC y el SIMO', text:'La Comisión Nacional del Servicio Civil (CNSC) administra el proceso; el Sistema de Apoyo para la Igualdad, el Mérito y la Oportunidad (SIMO) es la plataforma donde se inscriben los aspirantes, se consultan resultados y se elige plaza.'}
+  ],
   questions:[
     q('¿Qué norma establece el Estatuto de Profesionalización Docente bajo el cual se rige este concurso?','Ley 30 de 1992','Decreto Ley 1278 de 2002','Ley 715 de 2001','Decreto 1290 de 2009',1,'El Decreto Ley 1278/2002 es la norma marco del ingreso, ascenso y evaluación de docentes estatales vinculados después de 2002.'),
     q('Según el Decreto 1278/2002, ¿cuál es la duración del período de prueba tras la posesión en el cargo?','2 meses','4 meses','6 meses','1 año',1,'El período de prueba es de 4 meses de servicio efectivo, al final del cual se evalúa la confirmación en el cargo.'),
@@ -161,7 +177,13 @@ const SUBJECTS = [
 
 { id:'verbal', num:'01', title:'Aptitud Verbal / Lectura Crítica', meta:'30 preguntas · antónimos, analogías, ordenamiento, comprensión, oraciones incompletas',
   chunkSize:10,
-  theory:`Réplica del componente real: <b>antónimos</b> (encontrar el significado opuesto), <b>analogías</b> (identificar la relación entre un par de palabras y encontrar el par equivalente), <b>ordenamiento de palabras/oraciones</b> (reconstruir un texto coherente), <b>oraciones incompletas</b> (completar con la opción gramaticalmente correcta) y <b>comprensión de lectura</b> (inferencias y idea principal, ancladas solo en lo que dice el texto).`,
+  theory:[
+    {tag:'Antónimos', text:'Se presenta una palabra y debes hallar la de significado opuesto. Cuidado con las opciones que son sinónimos o palabras de la misma familia semántica — son la trampa más común. Estrategia: primero define mentalmente la palabra, luego busca su "contrario exacto", no una palabra simplemente distinta.'},
+    {tag:'Analogías', text:'Se da un par de palabras (A : B) y debes hallar otro par con la <b>misma relación lógica</b> — no el mismo tema. Relaciones típicas: lugar/persona que lo ocupa, herramienta/función, causa/efecto, todo/parte, sinónimos o antónimos entre sí. Primero nombra la relación en palabras ("A es el lugar donde trabaja B"), luego busca el par que cumpla exactamente esa misma relación.'},
+    {tag:'Ordenamiento', text:'Debes reconstruir una oración o un párrafo corto a partir de fragmentos desordenados. Busca primero el sujeto o conector inicial (a menudo un artículo o adverbio como "primero"/"luego"), y sigue la lógica gramatical y temporal del texto.'},
+    {tag:'Oraciones incompletas', text:'Debes completar una oración con la combinación de palabras que mantenga coherencia gramatical y de sentido. Todas las opciones suenan parecidas; la clave está en que las palabras no se contradigan entre sí dentro de la misma oración (ej. "responsable" no puede combinarse lógicamente con "improvisación").'},
+    {tag:'Comprensión de lectura', text:'Preguntas ancladas en un texto corto. Estrategia: lee primero la pregunta, luego el texto, así sabes qué buscar. Distingue entre lo que el texto <b>afirma literalmente</b> y lo que tú sabes del tema por fuera del texto — la respuesta correcta siempre está sustentada solo en lo escrito. Las opciones "casi correctas" suelen agregar información que el texto no dice.'}
+  ],
   questions:[
     q('ANTÓNIMO de PERSPICAZ','torpe','agudo','sagaz','listo',0,'Perspicaz significa agudo o perceptivo; su opuesto directo es "torpe".'),
     q('ANTÓNIMO de PARCO','locuaz','callado','sobrio','mesurado',0,'Parco significa "de pocas palabras"; su opuesto es "locuaz" (hablador en exceso).'),
@@ -198,7 +220,14 @@ const SUBJECTS = [
 
 { id:'numerica', num:'02', title:'Aptitud Numérica / Razonamiento Cuantitativo', meta:'30 preguntas · regla de tres, porcentajes, conteo, proporciones',
   chunkSize:10,
-  theory:`Temas frecuentes: <b>regla de tres simple y compuesta</b> (directa e inversa), <b>porcentajes</b>, <b>técnicas de conteo</b> (permutaciones), <b>promedios</b> e <b>interpretación de datos</b>. Casi siempre enmarcados en contextos escolares. Identifica primero si la relación es directa o inversa antes de plantear la operación.`,
+  theory:[
+    {tag:'Regla de 3 simple directa', text:'Cuando dos magnitudes aumentan o disminuyen juntas en la misma proporción (ej. más estudiantes → más guías necesarias). Fórmula: si a→b, entonces c→x, con x = (c×b)/a.'},
+    {tag:'Regla de 3 simple inversa', text:'Cuando una magnitud aumenta mientras la otra disminuye (ej. más trabajadores → menos tiempo necesario). Fórmula: x = (a×b)/c. La trampa más común del examen es aplicar la fórmula directa cuando en realidad la relación es inversa — siempre pregúntate: "si una magnitud sube, ¿la otra sube o baja?".'},
+    {tag:'Porcentajes', text:'Para calcular el % de un valor: (porcentaje/100) × valor total. Para calcular variación porcentual: (diferencia / valor inicial) × 100. Ojo: el "100%" de referencia cambia según la pregunta — identifícalo siempre antes de operar.'},
+    {tag:'Conteo y permutaciones', text:'Cuando se pregunta de cuántas formas se pueden organizar u ordenar n elementos distintos, se usa el factorial: n! = n×(n-1)×(n-2)×...×1.'},
+    {tag:'Promedios', text:'Promedio = suma de todos los valores ÷ número de valores. Para recalcular un promedio al quitar o agregar un dato, primero reconstruye la suma total (promedio × cantidad de datos), ajústala, y vuelve a dividir.'},
+    {tag:'Trabajo combinado', text:'Cuando varias personas o equipos hacen una tarea juntos, el "trabajo total" se mantiene constante: (número de trabajadores) × (tiempo) = constante. Si cambia el número de trabajadores, el tiempo cambia de forma inversamente proporcional — salvo que el trabajo sea independiente y simultáneo (ej. instalar software en varios computadores a la vez), donde el tiempo no cambia.'}
+  ],
   questions:[
     q('En un curso de 40 estudiantes, el 35% obtuvo desempeño superior. ¿Cuántos estudiantes fueron?','12','14','16','18',1,'35% de 40 = 0.35 × 40 = 14 estudiantes.'),
     q('Si 5 computadores tardan 8 horas en instalarse (de forma simultánea e independiente), ¿cuánto tardarán 10 computadores?','4 horas','8 horas','16 horas','10 horas',1,'Cada computador se instala de forma independiente y simultánea, por lo que el tiempo no cambia: 8 horas.'),
@@ -235,7 +264,12 @@ const SUBJECTS = [
 
 { id:'psicotecnica', num:'03', title:'Psicotécnica / Competencias Ciudadanas', meta:'30 preguntas · juicio situacional: liderazgo, ética, trabajo en equipo, ciudadanía',
   chunkSize:10,
-  theory:`No mide conocimientos teóricos, sino cómo actuarías ante situaciones reales de convivencia y ética profesional. Formato de juicio situacional: la clave correcta siempre prioriza <b>diálogo antes que sanción</b>, <b>corresponsabilidad antes que imposición</b> y <b>bienestar colectivo antes que conveniencia individual</b>.`,
+  theory:[
+    {tag:'Qué mide', text:'No mide conocimientos teóricos, sino cómo actuarías ante situaciones reales de convivencia, ética profesional, liderazgo y trabajo en equipo. Se presenta como un caso corto con 4 respuestas posibles, todas "razonables" en apariencia.'},
+    {tag:'Criterio de la clave correcta', text:'La opción correcta casi siempre prioriza: <b>diálogo antes que sanción</b>, <b>corresponsabilidad antes que imposición unilateral</b>, y <b>bienestar colectivo antes que conveniencia individual o evasión del problema</b>.'},
+    {tag:'Opciones a descartar', text:'Descarta siempre las opciones extremas: las puramente punitivas (sancionar sin diálogo previo), las evasivas (ignorar el problema o "no es mi función") y las que exponen públicamente a un estudiante o colega.'},
+    {tag:'Base normativa', text:'Muchos casos se relacionan con la <b>Ley 1620/2013</b> (rutas de convivencia escolar) y el <b>Decreto 1421/2017</b> (inclusión): ante situaciones de acoso, discriminación o posible maltrato, la respuesta correcta casi siempre implica activar la ruta institucional formal, no resolverlo "por cuenta propia".'}
+  ],
   questions:[
     q('Un colega le pide "prestarle" las respuestas de un examen para un estudiante con dificultades. ¿Qué hace?','Acceder, es una forma de ayudar','Negarse y proponer estrategias formales de apoyo académico','Ignorar la petición sin explicación','Informar de inmediato a la Secretaría de Educación',1,'La respuesta ética rechaza la conducta indebida y ofrece una alternativa constructiva, sin evadir ni denunciar sin diálogo previo.'),
     q('Dos docentes tienen visiones opuestas sobre cómo evaluar un proyecto. ¿Qué actitud refleja mejor el trabajo en equipo?','Imponer su metodología por experiencia','Buscar consenso y construir criterios conjuntos','Evitar la discusión, cada uno evalúa a su manera','Que el coordinador decida sin escuchar a ambos',1,'El trabajo en equipo efectivo busca consenso, no imposición ni evasión del conflicto.'),
@@ -272,7 +306,13 @@ const SUBJECTS = [
 
 { id:'pedagogico', num:'04', title:'Componente Pedagógico', meta:'30 preguntas · didáctica, currículo, evaluación, inclusión',
   chunkSize:10,
-  theory:`Es uno de los componentes de mayor peso. Se presenta casi siempre como caso de aula con varias estrategias posibles. La clave correcta prioriza: <b>evaluación formativa</b> (no solo sumativa), <b>diferenciación pedagógica</b>, <b>inclusión</b> y fundamentación en el currículo — nunca la opción más punitiva o la que evita el problema.`,
+  theory:[
+    {tag:'Peso e importancia', text:'Junto al disciplinar, es uno de los componentes de mayor ponderación en la prueba escrita. Se presenta casi siempre como un caso de aula con varias estrategias didácticas posibles.'},
+    {tag:'Evaluación formativa vs. sumativa', text:'La <b>formativa</b> acompaña el proceso y retroalimenta para mejorar el aprendizaje; la <b>sumativa</b> certifica un resultado final. La CNSC casi siempre premia respuestas que reflejan el enfoque formativo: usar el error como oportunidad, ajustar la enseñanza según resultados, diversificar formas de evaluar.'},
+    {tag:'Diferenciación e inclusión', text:'Ante estudiantes con distintos ritmos (muy avanzados, con dificultades, o con discapacidad), la clave correcta siempre implica <b>adaptar</b> la actividad o la evaluación, apoyado en el PIAR cuando aplica — nunca excluir, ni "nivelar hacia abajo" a todo el grupo.'},
+    {tag:'Aprendizaje significativo', text:'Las secuencias didácticas más valoradas parten de una situación o pregunta real, conectan con los saberes previos del estudiante, y avanzan hacia el concepto y la práctica guiada — no al revés (teoría aislada → examen).'},
+    {tag:'Referentes curriculares', text:'Los <b>Derechos Básicos de Aprendizaje (DBA)</b> y los <b>Estándares Básicos de Competencias</b> del MEN son el referente nacional que orienta —sin sustituir— la autonomía curricular de cada institución (PEI).'}
+  ],
   questions:[
     q('Un estudiante domina la teoría de programación pero tiene bajo desempeño en evaluaciones escritas tradicionales. ¿Qué hace?','Mantener solo evaluaciones escritas para ser "objetivo"','Diversificar la evaluación con proyectos prácticos que permitan demostrar la competencia','Bajarle la exigencia sin ajustar la evaluación','Recomendar que cambie de asignatura',1,'La diversificación evaluativa permite demostrar la competencia real de distintas formas, alineado con la evaluación formativa.'),
     q('Al planear una unidad sobre bases de datos, ¿qué secuencia es más coherente con el aprendizaje significativo?','Definiciones teóricas → examen final','Situación problema real → conceptos → práctica guiada → producto final','Examen diagnóstico → práctica libre sin guía','Copiar definiciones → repetirlas en clase',1,'Partir de una situación real hacia concepto, práctica guiada y producto es coherente con el aprendizaje significativo.'),
@@ -309,7 +349,14 @@ const SUBJECTS = [
 
 { id:'disciplinar', num:'05', title:'Dominio Disciplinar · Sistemas e Informática', meta:'40 preguntas · técnico + aplicación didáctica',
   chunkSize:10,
-  theory:`Se ancla en los <b>DBA y Orientaciones de Tecnología e Informática del MEN</b>: pensamiento computacional, redes, bases de datos, desarrollo web/software, seguridad y uso ético de las TIC. Combina preguntas técnicas puras con preguntas de aplicación didáctica del contenido disciplinar en el aula.`,
+  theory:[
+    {tag:'Base curricular', text:'Se ancla en los <b>DBA y Orientaciones de Tecnología e Informática del MEN</b>, organizados en 4 ejes: naturaleza y evolución de la tecnología, apropiación y uso, solución de problemas con tecnología, y tecnología y sociedad.'},
+    {tag:'Redes y hardware', text:'Repasa: tipos de red (LAN/WAN), dispositivos (switch, router, firewall), protocolos clave (DHCP, DNS, HTTPS, TCP), y componentes básicos (RAM vs. almacenamiento).'},
+    {tag:'Bases de datos', text:'Repasa: modelo entidad-relación, claves primarias y foráneas, tipos de relación (uno a muchos, muchos a muchos), normalización y consultas SQL básicas.'},
+    {tag:'Programación y pensamiento computacional', text:'Repasa: estructuras de control (secuencia, selección, repetición), descomposición, abstracción, programación orientada a objetos (herencia), y el uso de pseudocódigo/programación por bloques como estrategia didáctica inicial.'},
+    {tag:'Seguridad y ética digital', text:'Repasa: phishing, virus vs. ransomware, backups, y los principios de ciudadanía digital y derechos de autor que se enseñan en el aula.'},
+    {tag:'Formato mixto', text:'Este componente combina preguntas técnicas puras (definiciones, funcionamiento) con preguntas de <b>aplicación didáctica</b>: cómo enseñarías ese contenido a un estudiante de básica o media. Ambas formas aparecen por igual.'}
+  ],
   questions:[
     q('¿Qué dispositivo de red dirige el tráfico de forma inteligente hacia el destinatario correcto, a diferencia de un hub?','Switch','Módem','Repetidor','Firewall',0,'El switch dirige el tráfico hacia el puerto correcto, a diferencia del hub que lo transmite a todos.'),
     q('Una relación "muchos a muchos" en bases de datos se implementa generalmente mediante:','Una clave foránea directa en una tabla','Una tabla intermedia con claves foráneas de ambas tablas','Eliminando una de las tablas','Una vista sin claves',1,'Las relaciones muchos a muchos requieren una tabla intermedia con las claves foráneas de ambas entidades.'),
@@ -445,8 +492,15 @@ function renderDashboard(){
         ${bd?`<span class="block-score">${st.bestScore}%</span>`:''}
       </button>`;
     }).join('');
+    const theoryHtml = s.theory.map(a=>`
+      <div class="article">
+        <div class="article-tag">${a.tag}</div>
+        <div class="article-text">${a.text}</div>
+      </div>
+    `).join('');
     panel.innerHTML = `<div class="panel-inner">
-      <div class="theory-mini">${s.theory}</div>
+      <p class="theory-heading">Lectura previa · antes de responder</p>
+      <div class="theory-mini">${theoryHtml}</div>
       <div class="blocks-grid">${blocksHtml}</div>
     </div>`;
     card.appendChild(panel);
