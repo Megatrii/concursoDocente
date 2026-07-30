@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expediente de Preparación · Concurso Docente CNSC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EFEAE0; --paper-2:#E4DDCD; --ink:#1B2A41; --ink-soft:#3C4A61;
+    --gold:#B7862C; --brick:#8C3B2E; --green-ok:#3D6B4F; --line:#C9BFA9; --white:#FBF9F4;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;line-height:1.55;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px 80px;}
+  header{background:var(--ink);color:var(--white);padding:36px 20px 28px;border-bottom:6px solid var(--gold);}
+  header .inner{max-width:920px;margin:0 auto;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+  h1{font-family:'Source Serif 4',serif;font-weight:700;font-size:clamp(26px,4.6vw,38px);margin:0 0 8px;letter-spacing:-.01em;}
+  .subtitle{color:#C9D2DE;font-size:14.5px;max-width:64ch;}
+  .progress-strip{display:flex;align-items:center;gap:14px;margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.15);flex-wrap:wrap;}
+  .progress-track{flex:1;min-width:160px;height:8px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--gold);transition:width .5s ease;}
+  .progress-label{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--gold);white-space:nowrap;}
+
+  .subjects{margin-top:32px;}
+  .subject-card{background:var(--white);border:1px solid var(--line);border-left:5px solid var(--line);margin-bottom:14px;overflow:hidden;transition:border-color .2s;}
+  .subject-card.locked{opacity:.5;}
+  .subject-card.done{border-left-color:var(--green-ok);}
+  .subject-head{display:flex;gap:16px;align-items:center;padding:18px 20px;cursor:pointer;}
+  .subject-head.locked{cursor:not-allowed;}
+  .subject-num{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);background:var(--paper-2);border:1px solid var(--line);width:42px;height:42px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:2px;}
+  .subject-body{flex:1;}
+  .subject-title{font-family:'Source Serif 4',serif;font-weight:600;font-size:18px;margin:0 0 3px;}
+  .subject-meta{font-size:12.5px;color:var(--ink-soft);}
+  .subject-status{font-family:'IBM Plex Mono',monospace;font-size:11.5px;padding:4px 9px;border-radius:2px;white-space:nowrap;}
+  .status-locked{background:var(--paper-2);color:var(--ink-soft);}
+  .status-progress{background:#EFE0BE;color:#6B4E14;}
+  .status-done{background:#DCE9DF;color:var(--green-ok);}
+  .chevron{font-size:12px;color:var(--ink-soft);transition:transform .2s;}
+  .subject-card.open .chevron{transform:rotate(90deg);}
+
+  .subject-panel{max-height:0;overflow:hidden;transition:max-height .3s ease;border-top:1px solid var(--paper-2);}
+  .subject-card.open .subject-panel{max-height:1200px;}
+  .panel-inner{padding:16px 20px 20px;}
+  .theory-mini{font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;padding-bottom:14px;border-bottom:1px dashed var(--line);}
+  .theory-mini b{color:var(--ink);}
+  .theory-toggle{background:none;border:none;color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer;padding:0;margin-bottom:10px;}
+  .blocks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .block-chip{background:var(--paper);border:1px solid var(--line);padding:12px 12px;cursor:pointer;text-align:left;font-family:'IBM Plex Sans',sans-serif;}
+  .block-chip:hover{border-color:var(--ink-soft);}
+  .block-chip.done{border-color:var(--green-ok);background:#EAF3ED;}
+  .block-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);display:block;margin-bottom:4px;}
+  .block-title{font-size:13.5px;font-weight:600;display:block;margin-bottom:3px;}
+  .block-score{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--green-ok);}
+
+  .hidden{display:none !important;}
+  .back-btn{background:none;border:none;color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:13px;cursor:pointer;padding:0;margin-bottom:18px;letter-spacing:.05em;}
+  .back-btn:hover{text-decoration:underline;}
+
+  .quiz-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .quiz-progress{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink-soft);}
+  .q-card{background:var(--white);border:1px solid var(--line);padding:22px 24px;margin-bottom:16px;}
+  .q-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
+  .q-text{font-size:15.5px;margin:0 0 18px;font-weight:500;}
+  .q-passage{background:var(--paper-2);border-left:3px solid var(--line);padding:12px 16px;font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;font-style:italic;}
+  .options{display:flex;flex-direction:column;gap:9px;}
+  .option{text-align:left;background:var(--paper);border:1px solid var(--line);padding:12px 14px;font-size:14.5px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;display:flex;gap:10px;}
+  .option:hover{border-color:var(--ink-soft);}
+  .option.correct{border-color:var(--green-ok);background:#EAF3ED;}
+  .option.incorrect{border-color:var(--brick);background:#F5EAE8;}
+  .opt-letter{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--ink-soft);}
+  .feedback{margin-top:14px;padding:12px 14px;font-size:13.5px;border-left:3px solid var(--gold);background:#FBF3E2;display:none;}
+  .feedback.show{display:block;}
+  .feedback.wrong{border-left-color:var(--brick);background:#F5EAE8;}
+  .next-btn{margin-top:16px;background:var(--ink);color:var(--white);border:none;padding:10px 22px;font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:14px;cursor:pointer;display:none;}
+  .next-btn.show{display:inline-block;}
+
+  .result-box{background:var(--ink);color:var(--white);padding:34px;text-align:center;}
+  .result-score{font-family:'Source Serif 4',serif;font-size:52px;color:var(--gold);margin:0;}
+  .result-label{font-size:14px;color:#C9D2DE;margin-bottom:20px;}
+  .result-msg{font-size:15px;max-width:50ch;margin:0 auto 24px;}
+  .result-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .result-actions button{background:var(--gold);color:var(--ink);border:none;font-weight:600;padding:11px 20px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:14px;}
+  .result-actions button.secondary{background:transparent;color:var(--white);border:1px solid rgba(255,255,255,.4);}
+
+  footer.note{margin-top:26px;font-size:12.5px;color:var(--ink-soft);border-top:1px dashed var(--line);padding-top:16px;}
+  @media (max-width:600px){.subject-head{padding:14px;gap:10px;}.subject-title{font-size:16px;}.blocks-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <div class="eyebrow">Expediente No. 001-2026 · Concurso Docente CNSC</div>
+    <h1>Preparación · Docente de Aula, Sistemas e Informática</h1>
+    <div class="subtitle">Réplica del examen real del ICFES/CNSC: mismos componentes y mismo número de preguntas (160 en total), pero dividido en bloques de ~10 preguntas para que avances por partes, cuando puedas.</div>
+    <div class="progress-strip">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-label" id="progressLabel">0 / 0 bloques completados</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="dashboardView">
+    <div class="subjects" id="subjectList"></div>
+    <footer class="note">
+      Estructura basada en la Guía de Orientación oficial ICFES/CNSC (Aptitud Numérica 30, Aptitud Verbal 30, Psicotécnica 30, Componente Pedagógico 30, Dominio Disciplinar 40) y en el marco normativo vigente (Decreto 1278/2002, Ley 115/1994, Decretos 1075/2015, 1290/2009, 1421/2017, Ley 1620/2013). Preguntas de elaboración propia inspiradas en ese formato — no son las preguntas reales del examen, que la CNSC no publica. Verifica siempre el Acuerdo oficial de tu convocatoria en cnsc.gov.co. El progreso se guarda en este dispositivo.
+    </footer>
+  </div>
+
+  <div id="quizView" class="hidden">
+    <button class="back-btn" onclick="showDashboard()">← SALIR DEL BLOQUE</button>
+    <div class="quiz-header">
+      <div class="quiz-progress" id="quizProgress"></div>
+    </div>
+    <div id="quizArea"></div>
+  </div>
+
+  <div id="resultView" class="hidden">
+    <div class="result-box">
+      <div class="result-label" id="resultModuleName">BLOQUE</div>
+      <p class="result-score" id="resultScore">0%</p>
+      <p class="result-msg" id="resultMsg"></p>
+      <div class="result-actions">
+        <button onclick="retryQuiz()">Repetir bloque</button>
+        <button class="secondary" onclick="showDashboard()">Volver al expediente</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ HELPERS ============ */
+function q(text,a,b,c,d,correct,explanation){ return {type:'plain',text,options:[a,b,c,d],correct,explanation}; }
+function qp(passage,text,a,b,c,d,correct,explanation){ return {type:'passage',passage,text,options:[a,b,c,d],correct,explanation}; }
+
+/* ============ DATA: SUBJECTS ============ */
+const SUBJECTS = [
+
+{ id:'legal', num:'00', title:'Marco Legal y Normativo', meta:'12 preguntas · fundamento jurídico del concurso',
+  chunkSize:6,
+  theory:`<b>Decreto Ley 1278/2002</b> — Estatuto de Profesionalización Docente: ingreso por mérito, escalafón (grados 1-3), período de prueba de 4 meses, evaluación anual (mínimo 60%).<br><b>Ley 115/1994</b> — Ley General de Educación: fines, PEI, áreas obligatorias (incluye Tecnología e Informática).<br><b>Decreto 1075/2015</b> — Decreto Único Reglamentario del sector educación.<br><b>Decreto 1290/2009</b> — Autonomía institucional para el Sistema de Evaluación (SIEE).<br><b>Decreto 1421/2017</b> — Educación inclusiva, PIAR.<br><b>Ley 1620/2013</b> — Sistema Nacional de Convivencia Escolar.`,
+  questions:[
+    q('¿Qué norma establece el Estatuto de Profesionalización Docente bajo el cual se rige este concurso?','Ley 30 de 1992','Decreto Ley 1278 de 2002','Ley 715 de 2001','Decreto 1290 de 2009',1,'El Decreto Ley 1278/2002 es la norma marco del ingreso, ascenso y evaluación de docentes estatales vinculados después de 2002.'),
+    q('Según el Decreto 1278/2002, ¿cuál es la duración del período de prueba tras la posesión en el cargo?','2 meses','4 meses','6 meses','1 año',1,'El período de prueba es de 4 meses de servicio efectivo, al final del cual se evalúa la confirmación en el cargo.'),
+    q('¿Qué instrumento define cada institución, con autonomía, para establecer sus criterios de evaluación y promoción?','El PEI','El SIEE (Decreto 1290/2009)','El PIAR','El Manual de Convivencia',1,'El Decreto 1290/2009 delega en cada institución la construcción de su Sistema Institucional de Evaluación de Estudiantes.'),
+    q('El Plan Individual de Ajustes Razonables (PIAR) está reglamentado por:','Decreto 1421 de 2017','Ley 115 de 1994','Decreto 1278 de 2002','Decreto 1075 de 2015',0,'El Decreto 1421/2017 regula la atención educativa a población con discapacidad, incluyendo el PIAR.'),
+    q('¿Cuál es el puntaje mínimo de la evaluación anual de desempeño para permanecer en el escalafón?','50%','60%','70%','80%',1,'El Decreto 1278 establece 60% como umbral mínimo satisfactorio.'),
+    q('La Ley 115 de 1994 establece que Tecnología e Informática es:','Un área optativa','Un área obligatoria y fundamental del currículo','Solo un proyecto transversal','Exclusiva de la media técnica',1,'La Ley 115 la incluye entre las áreas obligatorias y fundamentales del currículo.'),
+    q('¿Qué documento compila la reglamentación vigente del sector educativo, incluyendo currículo y régimen docente?','Decreto 1075 de 2015','Decreto 1421 de 2017','Ley 30 de 1992','Decreto 1860 de 1994',0,'El Decreto 1075/2015 es el Decreto Único Reglamentario del Sector Educación.'),
+    q('El Manual de Funciones, Requisitos y Competencias del sector educativo define principalmente:','Los contenidos curriculares por grado','Los requisitos y competencias exigidas por cargo','El calendario académico nacional','Las tarifas de matrícula',1,'Este manual establece qué se exige para cada cargo docente o directivo.'),
+    q('¿Qué entidad administra los concursos de mérito docente en Colombia?','El Ministerio de Educación directamente','La Comisión Nacional del Servicio Civil (CNSC)','El ICFES exclusivamente','Cada Secretaría de Educación de forma independiente',1,'La CNSC es la entidad constitucional encargada de garantizar los concursos de mérito para el ingreso a la carrera administrativa y docente.'),
+    q('La convocatoria pública que fija las reglas específicas de un concurso docente se denomina técnicamente:','Resolución','Acuerdo de convocatoria','Circular','Manual de funciones',1,'El "Acuerdo" es el instrumento jurídico mediante el cual la CNSC establece las reglas de cada convocatoria específica.'),
+    q('¿Qué grados componen el escalafón docente según el Decreto 1278/2002?','Grados 1, 2 y 3','Grados A, B y C','Grados I a V','Un único grado',0,'El escalafón del Decreto 1278 se organiza en tres grados (1, 2 y 3), cada uno con niveles internos según formación y experiencia.'),
+    q('El propósito principal de la Ley 1620 de 2013 (Sistema Nacional de Convivencia Escolar) es:','Regular exclusivamente el uso de uniformes','Fomentar la convivencia escolar y prevenir la violencia escolar','Establecer el calendario académico','Definir el salario docente',1,'La Ley 1620 crea el Sistema Nacional de Convivencia Escolar para promover la formación ciudadana y prevenir/mitigar la violencia escolar.')
+  ]
+},
+
+{ id:'verbal', num:'01', title:'Aptitud Verbal / Lectura Crítica', meta:'30 preguntas · antónimos, analogías, ordenamiento, comprensión, oraciones incompletas',
+  chunkSize:10,
+  theory:`Réplica del componente real: <b>antónimos</b> (encontrar el significado opuesto), <b>analogías</b> (identificar la relación entre un par de palabras y encontrar el par equivalente), <b>ordenamiento de palabras/oraciones</b> (reconstruir un texto coherente), <b>oraciones incompletas</b> (completar con la opción gramaticalmente correcta) y <b>comprensión de lectura</b> (inferencias y idea principal, ancladas solo en lo que dice el texto).`,
+  questions:[
+    q('ANTÓNIMO de PERSPICAZ','torpe','agudo','sagaz','listo',0,'Perspicaz significa agudo o perceptivo; su opuesto directo es "torpe".'),
+    q('ANTÓNIMO de PARCO','locuaz','callado','sobrio','mesurado',0,'Parco significa "de pocas palabras"; su opuesto es "locuaz" (hablador en exceso).'),
+    q('ANTÓNIMO de EFÍMERO','duradero','pasajero','breve','fugaz',0,'Efímero significa de corta duración; el opuesto es "duradero".'),
+    q('ANTÓNIMO de PRÓDIGO','avaro','generoso','dadivoso','desprendido',0,'Pródigo significa muy generoso; su opuesto es "avaro".'),
+    q('ANTÓNIMO de TÁCITO','explícito','implícito','sobreentendido','callado',0,'Tácito significa implícito o no expresado directamente; el opuesto es "explícito".'),
+    q('ANTÓNIMO de INCIPIENTE','consumado','naciente','primerizo','embrionario',0,'Incipiente significa que empieza; su opuesto es "consumado" (que ya alcanzó su desarrollo pleno).'),
+    q('AULA : ESTUDIANTES ::','consultorio : pacientes','libro : hojas','escuela : profesores','silla : mesa',0,'La relación es lugar : personas que lo ocupan habitualmente; igual que consultorio : pacientes.'),
+    q('LÁPIZ : ESCRIBIR ::','tijera : cortar','papel : lápiz','mesa : silla','libro : leer',0,'La relación es herramienta : función que cumple; igual que tijera : cortar.'),
+    q('MÉDICO : HOSPITAL ::','docente : colegio','alumno : libro','enfermo : medicina','director : oficina',0,'La relación es profesión : lugar de trabajo; igual que docente : colegio.'),
+    q('LIBRO : CAPÍTULO ::','año : mes','casa : puerta','árbol : hoja','mes : semana',0,'La relación es todo : subdivisión temporal-estructural equivalente; igual que año : mes.'),
+    q('SEMBRAR : COSECHAR ::','estudiar : aprender','correr : caminar','hablar : callar','leer : escribir',0,'La relación es causa : consecuencia esperada; igual que estudiar : aprender.'),
+    q('TIMIDEZ : AUDACIA ::','cobardía : valentía','miedo : temor','alegría : tristeza','calma : serenidad',0,'La relación es antonimia (pares opuestos); igual que cobardía : valentía.'),
+    q('Ordene: 1.docente 2.el 3.estrategias 4.aplica 5.nuevas 6.pedagógicas','2,1,4,5,6,3','2,1,4,5,3,6','1,2,4,5,3,6','2,4,1,5,3,6',1,'El orden correcto forma: "El docente aplica nuevas estrategias pedagógicas".'),
+    q('Ordene: 1.aula 2.la 3.tecnología 4.en 5.mejora 6.el aprendizaje','2,3,4,1,5,6','3,2,4,1,5,6','2,3,1,4,5,6','2,4,3,1,5,6',0,'El orden correcto forma: "La tecnología en el aula mejora el aprendizaje".'),
+    q('Ordene el proceso: 1. Finalmente se publica la lista de elegibles 2. Primero la CNSC abre la convocatoria 3. Luego los aspirantes se inscriben en el SIMO 4. Después se aplican las pruebas escritas','2,3,4,1','2,4,3,1','1,2,3,4','3,2,4,1',0,'La secuencia lógica del concurso es: convocatoria → inscripción → pruebas → lista de elegibles.'),
+    q('Ordene: 1.sin embargo 2.mejoró notablemente 3.el desempeño del curso 4.tras aplicar la nueva metodología, 5.no todos los estudiantes avanzaron al mismo ritmo','4,3,2,1,5','3,4,2,1,5','4,2,3,1,5','1,4,3,2,5',0,'El orden correcto forma: "Tras aplicar la nueva metodología, el desempeño del curso mejoró notablemente; sin embargo, no todos los estudiantes avanzaron al mismo ritmo".'),
+    q('"La labor docente exige ___ constante y ___ con los estudiantes para lograr ___ significativo."','paciencia - empatía - un aprendizaje','paciencia - antipatía - un aprendizaje','urgencia - empatía - un olvido','dureza - distancia - un aprendizaje',0,'Solo la primera opción mantiene coherencia semántica: paciencia y empatía conducen a un aprendizaje significativo.'),
+    q('"El uso ___ de la tecnología en el aula requiere ___ previa y ___ constante por parte del docente."','responsable - planeación - acompañamiento','excesivo - improvisación - abandono','responsable - improvisación - abandono','limitado - planeación - descuido',0,'Solo la primera opción es coherente: uso responsable requiere planeación y acompañamiento, no improvisación ni abandono.'),
+    q('"Aunque el proyecto ___ ambicioso, el equipo logró ___ los objetivos ___ el plazo previsto."','era - cumplir - dentro de','era - cumplir - fuera de','fue - incumplir - dentro de','es - abandonar - dentro de',0,'"Aunque...era ambicioso...logró cumplir...dentro de" mantiene coherencia lógica y gramatical.'),
+    q('"La evaluación ___ no busca sancionar el error, sino ___ el aprendizaje ___ la reflexión."','formativa - fortalecer - mediante','punitiva - evitar - mediante','formativa - impedir - sin','sumativa - fortalecer - sin',0,'Solo "formativa - fortalecer - mediante" es coherente con la idea de usar el error como oportunidad de aprendizaje.'),
+    qp('El pensamiento computacional se ha incorporado progresivamente al currículo de Tecnología e Informática en Colombia, no como un conjunto de técnicas de programación aisladas, sino como una forma de resolver problemas mediante la descomposición, el reconocimiento de patrones, la abstracción y el diseño de algoritmos, aplicable incluso a contextos ajenos a la informática.','Según el texto, el pensamiento computacional se concibe principalmente como:','Un conjunto de técnicas exclusivas de programación','Una forma general de resolver problemas aplicable más allá de la informática','Un área independiente del currículo de tecnología','Un método exclusivo para enseñar algoritmos avanzados',1,'El texto es explícito: se concibe como "una forma de resolver problemas" aplicable "incluso a contextos ajenos a la informática".'),
+    qp('El pensamiento computacional se ha incorporado progresivamente al currículo de Tecnología e Informática en Colombia, no como un conjunto de técnicas de programación aisladas, sino como una forma de resolver problemas mediante la descomposición, el reconocimiento de patrones, la abstracción y el diseño de algoritmos, aplicable incluso a contextos ajenos a la informática.','¿Cuál de las siguientes NO se menciona en el texto como componente del pensamiento computacional?','Descomposición','Reconocimiento de patrones','Memorización de sintaxis','Abstracción',2,'El texto menciona descomposición, reconocimiento de patrones, abstracción y diseño de algoritmos; la memorización de sintaxis no aparece.'),
+    qp('Estudios recientes señalan que la brecha digital en zonas rurales de Colombia no se limita al acceso a internet, sino que incluye también la disponibilidad de dispositivos adecuados, la conectividad estable y la formación docente en el uso pedagógico de las TIC.','Según el texto, la brecha digital rural comprende:','Únicamente la falta de acceso a internet','Acceso, dispositivos, conectividad y formación docente','Solo la falta de formación de los estudiantes','Exclusivamente la carencia de computadores',1,'El texto enumera explícitamente cuatro factores: acceso, dispositivos, conectividad estable y formación docente.'),
+    qp('Estudios recientes señalan que la brecha digital en zonas rurales de Colombia no se limita al acceso a internet, sino que incluye también la disponibilidad de dispositivos adecuados, la conectividad estable y la formación docente en el uso pedagógico de las TIC.','El texto sugiere que resolver la brecha digital requiere:','Una intervención multidimensional, no solo tecnológica','Enfocarse solo en la compra de equipos','Ignorar la formación docente','Priorizar solo la conectividad urbana',0,'Al enumerar varios factores (acceso, dispositivos, conectividad, formación), el texto implica que la solución debe abordarlos todos, no solo uno.'),
+    qp('Los adolescentes colombianos pasan, en promedio, varias horas diarias conectados a redes sociales, lo que ha llevado al Ministerio de Educación a promover estrategias de ciudadanía digital que incluyen el manejo responsable de la información personal y la prevención del ciberacoso.','El propósito principal de las estrategias mencionadas es:','Prohibir el uso de redes sociales en los colegios','Promover un uso responsable y seguro de las TIC entre los estudiantes','Aumentar el tiempo de conexión de los estudiantes','Sustituir la educación presencial por la virtual',1,'El texto habla de "estrategias de ciudadanía digital", orientadas al manejo responsable, no a la prohibición ni al aumento del uso.'),
+    qp('Los adolescentes colombianos pasan, en promedio, varias horas diarias conectados a redes sociales, lo que ha llevado al Ministerio de Educación a promover estrategias de ciudadanía digital que incluyen el manejo responsable de la información personal y la prevención del ciberacoso.','Según el texto, la ciudadanía digital incluye:','Solo el manejo de contraseñas','El manejo responsable de datos personales y la prevención del ciberacoso','Exclusivamente la instalación de antivirus','El bloqueo total de redes sociales',1,'El texto menciona explícitamente estos dos componentes: manejo responsable de información personal y prevención del ciberacoso.'),
+    qp('La evaluación por competencias se centra en valorar la capacidad del estudiante para aplicar conocimientos en situaciones reales, superando el modelo tradicional centrado en la memorización de contenidos.','Según el texto, la principal diferencia entre la evaluación por competencias y la tradicional es:','La evaluación por competencias no usa calificaciones numéricas','La evaluación por competencias valora la aplicación del conocimiento, no solo su memorización','La evaluación tradicional es más rigurosa','Ambas son exactamente iguales',1,'El texto contrasta explícitamente "aplicar conocimientos en situaciones reales" frente a "la memorización de contenidos".'),
+    qp('La evaluación por competencias se centra en valorar la capacidad del estudiante para aplicar conocimientos en situaciones reales, superando el modelo tradicional centrado en la memorización de contenidos.','El texto implica que un estudiante evaluado por competencias debe demostrar:','Capacidad de repetir información textualmente','Capacidad de aplicar lo aprendido en situaciones concretas','Memoria a corto plazo','Habilidad para copiar respuestas',1,'Se infiere directamente de la idea de "aplicar conocimientos en situaciones reales".'),
+    qp('La formación continua —maestrías, especializaciones y diplomados reconocidos por el Ministerio de Educación— permite a los docentes avanzar en el escalafón y acceder a mejores condiciones salariales, además de fortalecer su práctica pedagógica.','Según el texto, la formación continua tiene un doble beneficio:','Solo mejora el salario del docente','Permite ascenso en el escalafón y fortalece la práctica pedagógica','Solo mejora la práctica pedagógica sin impacto salarial','No tiene relación con el escalafón docente',1,'El texto menciona explícitamente ambos beneficios: ascenso/salario y fortalecimiento de la práctica pedagógica.'),
+    qp('La formación continua —maestrías, especializaciones y diplomados reconocidos por el Ministerio de Educación— permite a los docentes avanzar en el escalafón y acceder a mejores condiciones salariales, además de fortalecer su práctica pedagógica.','¿Qué tipo de formación menciona el texto como reconocida para el ascenso?','Cualquier curso corto sin importar su reconocimiento','Maestrías, especializaciones y diplomados reconocidos por el MEN','Solo diplomados internacionales','Solo maestrías en el exterior',1,'El texto especifica "reconocidos por el Ministerio de Educación" como condición para maestrías, especializaciones y diplomados.')
+  ]
+},
+
+{ id:'numerica', num:'02', title:'Aptitud Numérica / Razonamiento Cuantitativo', meta:'30 preguntas · regla de tres, porcentajes, conteo, proporciones',
+  chunkSize:10,
+  theory:`Temas frecuentes: <b>regla de tres simple y compuesta</b> (directa e inversa), <b>porcentajes</b>, <b>técnicas de conteo</b> (permutaciones), <b>promedios</b> e <b>interpretación de datos</b>. Casi siempre enmarcados en contextos escolares. Identifica primero si la relación es directa o inversa antes de plantear la operación.`,
+  questions:[
+    q('En un curso de 40 estudiantes, el 35% obtuvo desempeño superior. ¿Cuántos estudiantes fueron?','12','14','16','18',1,'35% de 40 = 0.35 × 40 = 14 estudiantes.'),
+    q('Si 5 computadores tardan 8 horas en instalarse (de forma simultánea e independiente), ¿cuánto tardarán 10 computadores?','4 horas','8 horas','16 horas','10 horas',1,'Cada computador se instala de forma independiente y simultánea, por lo que el tiempo no cambia: 8 horas.'),
+    q('Se reparten 60 guías proporcionalmente al número de estudiantes: A(20), B(25), C(15). ¿Cuántas recibe B?','20','25','15','30',1,'Proporción de B = 25/60 × 60 guías = 25 guías.'),
+    q('El 40% de 30 estudiantes aprueba de primera. De los que no aprobaron, el 50% aprueba en segundo intento. ¿Cuántos aprobaron en total?','12','18','21','24',2,'12 aprueban de primera; de los 18 restantes, 9 aprueban después (50%). Total: 12+9=21.'),
+    q('¿De cuántas formas se pueden organizar 4 estudiantes en fila?','12','16','24','20',2,'Permutación de 4 elementos: 4! = 24.'),
+    q('Un servidor de 500 GB tiene 68% usado. ¿Cuántos GB quedan disponibles?','170 GB','160 GB','150 GB','340 GB',1,'32% disponible: 0.32 × 500 = 160 GB.'),
+    q('3 docentes califican 90 exámenes en 6 horas. ¿Cuánto tardarían 2 docentes al mismo ritmo?','4 horas','6 horas','9 horas','12 horas',2,'Trabajo total = 3×6=18. Con 2 docentes: 18÷2=9 horas.'),
+    q('El promedio de un curso mejoró de 3.2 a 4.0. ¿Cuál fue el % de mejora respecto al inicial?','20%','25%','30%','15%',1,'Mejora = 0.8; 0.8/3.2 ×100 = 25%.'),
+    q('Un docente compra 3 resmas a $12.000 c/u con 10% de descuento total. ¿Cuánto pagó?','$32.400','$34.400','$30.000','$36.000',0,'3×12.000=36.000; descuento 10%=3.600; total=32.400.'),
+    q('En una prueba de 50 preguntas, un estudiante respondió correctamente el 84%. ¿Cuántas fueron?','40','42','44','45',1,'0.84 × 50 = 42.'),
+    q('8 técnicos configuran 40 computadores en 5 horas. ¿Cuánto tardarían 4 técnicos, al mismo ritmo?','8 h','9 h','10 h','12 h',2,'8×5=40 (trabajo total); 40÷4=10 horas.'),
+    q('Una biblioteca tiene 900 libros: 45% literatura, 30% ciencias, resto otras áreas. ¿Cuántos son de "otras áreas"?','225','270','180','315',0,'45%+30%=75%; resto=25%; 0.25×900=225.'),
+    q('Un estudiante responde 3 preguntas cada 4 min. Si el examen tiene 60 preguntas, ¿cuánto tardará?','75 min','80 min','90 min','60 min',1,'60 × (4/3) = 80 minutos.'),
+    q('Grupo A recoge 18 kg y grupo B 12 kg de reciclaje. ¿Qué % del total corresponde a A?','55%','60%','65%','70%',1,'18/30 = 60%.'),
+    q('Un salón tiene relación de 5 niñas por cada 4 niños; hay 36 estudiantes. ¿Cuántas niñas hay?','16','18','20','24',2,'Total de partes=9; niñas=5/9×36=20.'),
+    q('Un docente calificó 60 exámenes en 4 horas. Al mismo ritmo, ¿cuántos calificará en 7 horas?','95','100','105','110',2,'Ritmo=15/h; 15×7=105.'),
+    q('De 200 docentes, 65% usa herramientas digitales a diario; de esos, 40% usa solo apps móviles. ¿Cuántos son?','48','52','56','60',1,'65%×200=130; 40%×130=52.'),
+    q('Un portátil con 15% de descuento queda en $1.700.000. ¿Cuál era el precio original?','$1.900.000','$1.950.000','$2.000.000','$2.050.000',2,'Precio×0.85=1.700.000; precio=2.000.000.'),
+    q('El largo de un salón es el triple del ancho; el perímetro es 32 m. ¿Cuál es el ancho?','3 m','4 m','5 m','6 m',1,'2(l+w)=32 → l+w=16; l=3w → 4w=16 → w=4.'),
+    q('Un proyecto necesita 3 estudiantes × 4 h/día × 2 días. Con solo 2 estudiantes, ¿cuántas horas diarias necesitan para el mismo plazo (2 días)?','5 h','6 h','7 h','8 h',1,'Trabajo total=3×4×2=24; con 2 estudiantes en 2 días: 24/(2×2)=6 h/día.'),
+    q('El promedio de 25 estudiantes es 3.6. Se retira uno con nota 2.0. ¿Nuevo promedio de los 24 restantes?','3.60','3.63','3.67','3.70',2,'Suma total=90; nueva suma=88; 88/24≈3.67.'),
+    q('2/5 practican fútbol y 1/4 baloncesto (sin superposición). ¿Qué fracción no practica ninguno?','5/20','6/20','7/20','8/20',2,'2/5+1/4=8/20+5/20=13/20; resto=7/20.'),
+    q('Una impresora imprime 45 páginas/min. ¿Cuántos minutos tardará en imprimir 1.080 páginas?','20','22','24','26',2,'1080/45=24.'),
+    q('En una rifa, el 20% de $150.000 se destina a material didáctico. ¿Cuánto es?','$25.000','$30.000','$35.000','$45.000',1,'0.20×150.000=30.000.'),
+    q('Un estudiante mejora su tiempo de 8 a 6 minutos. ¿Cuál fue el % de reducción?','20%','25%','30%','33%',1,'Reducción=2/8=25%.'),
+    q('Se reparten 120 guías proporcionalmente a los estudiantes a cargo: A(10), B(20), C(30), D(60). ¿Cuántas recibe D?','40','50','60','70',2,'Total estudiantes=120; D=60/120×120=60.'),
+    q('Un estudiante obtiene 80% y 90% en dos evaluaciones de igual peso. ¿Cuál es su promedio?','82%','85%','87%','90%',1,'(80+90)/2=85.'),
+    q('En un laboratorio de 24 computadores, el 25% está en mantenimiento. ¿Cuántos están disponibles?','16','18','20','22',1,'25%×24=6 en mantenimiento; disponibles=18.'),
+    q('6 estudiantes arman un proyecto en 3 horas trabajando juntos. ¿Cuánto tardarían 9 estudiantes?','1.5 h','2 h','2.5 h','3 h',1,'Trabajo total=6×3=18; con 9 estudiantes: 18/9=2 h.'),
+    q('Un colegio destina 12% de su presupuesto anual de $50.000.000 a tecnología. ¿Cuánto es?','$5.000.000','$5.500.000','$6.000.000','$6.500.000',2,'0.12×50.000.000=6.000.000.')
+  ]
+},
+
+{ id:'psicotecnica', num:'03', title:'Psicotécnica / Competencias Ciudadanas', meta:'30 preguntas · juicio situacional: liderazgo, ética, trabajo en equipo, ciudadanía',
+  chunkSize:10,
+  theory:`No mide conocimientos teóricos, sino cómo actuarías ante situaciones reales de convivencia y ética profesional. Formato de juicio situacional: la clave correcta siempre prioriza <b>diálogo antes que sanción</b>, <b>corresponsabilidad antes que imposición</b> y <b>bienestar colectivo antes que conveniencia individual</b>.`,
+  questions:[
+    q('Un colega le pide "prestarle" las respuestas de un examen para un estudiante con dificultades. ¿Qué hace?','Acceder, es una forma de ayudar','Negarse y proponer estrategias formales de apoyo académico','Ignorar la petición sin explicación','Informar de inmediato a la Secretaría de Educación',1,'La respuesta ética rechaza la conducta indebida y ofrece una alternativa constructiva, sin evadir ni denunciar sin diálogo previo.'),
+    q('Dos docentes tienen visiones opuestas sobre cómo evaluar un proyecto. ¿Qué actitud refleja mejor el trabajo en equipo?','Imponer su metodología por experiencia','Buscar consenso y construir criterios conjuntos','Evitar la discusión, cada uno evalúa a su manera','Que el coordinador decida sin escuchar a ambos',1,'El trabajo en equipo efectivo busca consenso, no imposición ni evasión del conflicto.'),
+    q('Un estudiante confiesa ser víctima de acoso en redes sociales por compañeros. ¿Qué hace?','Decirle que lo resuelva solo','Escucharlo, contenerlo y activar la ruta institucional (Ley 1620)','Hablar directamente con los agresores sin informar','Sugerirle cambiar de colegio',1,'Combina apoyo emocional inmediato con la activación del protocolo institucional formal.'),
+    q('Nota que un colega falta al respeto con comentarios sarcásticos a estudiantes. ¿Qué hace?','Ignorarlo','Conversar con el colega y, si persiste, informar a coordinación','Confrontarlo públicamente frente a estudiantes','Comentarlo con otros docentes sin actuar',1,'El diálogo directo primero, y si no hay cambio, escalar por el conducto institucional apropiado.'),
+    q('Un padre exige subir la nota de su hijo sin justificación académica. ¿Cómo actúa?','Acceder para evitar el conflicto','Escuchar con respeto, explicar criterios con evidencia y mantener la decisión','Negarse a hablar con el padre','Subir la nota parcialmente como conciliación',1,'Explicar con evidencia y sostener la decisión pedagógica bien fundamentada, sin ceder por presión.'),
+    q('¿Qué refleja mejor la ciudadanía activa en el aula?','Imponer normas sin consultar','Construir junto con los estudiantes las normas y consecuencias','Dejar que cada uno actúe según su criterio','Aplicar las mismas sanciones a todos sin distinción de contexto',1,'La ciudadanía activa se refleja en la construcción participativa de normas.'),
+    q('Un estudiante concentra todo el trabajo grupal por desconfianza en sus compañeros. ¿Cómo interviene?','Felicitarlo por su responsabilidad individual','Redistribuir roles y fomentar la confianza y cooperación','Bajar la nota al estudiante','No intervenir porque el resultado es bueno',1,'El objetivo es fortalecer el trabajo colaborativo real, no premiar el trabajo individual disfrazado.'),
+    q('¿Qué actitud demuestra mayor liderazgo ante un cambio curricular impuesto que considera mejorable?','Rechazarlo frente a los estudiantes','Implementarlo con compromiso y proponer ajustes por canales institucionales','Aplicarlo sin compromiso real','Ignorar el cambio y seguir con su metodología',1,'El liderazgo constructivo combina compromiso con propuesta de mejoras por canales formales.'),
+    q('Un docente nuevo nota prácticas de colegas que contradicen el manual de convivencia. ¿Qué hace primero?','Denunciar de inmediato sin dialogar','Conversar con el equipo y consultar al coordinador antes de actuar','Imitar las prácticas para no generar conflicto','Ignorar la situación por ser nuevo',1,'Lo prudente es dialogar y consultar antes de actuar unilateralmente, sin validar ni denunciar sin contexto.'),
+    q('En una salida pedagógica, un estudiante se aleja del grupo sin autorización. ¿Qué hace?','Esperar a que regrese por su cuenta','Buscarlo de inmediato e informar según protocolo institucional y a la familia','Continuar la actividad sin informar','Regañarlo públicamente al volver',1,'La prioridad es la seguridad inmediata y seguir el protocolo institucional de reporte.'),
+    q('Dos estudiantes de distinta religión discuten sobre un tema de clase. ¿Cómo promueve la ciudadanía el docente?','Prohibir el tema en clase','Facilitar un diálogo respetuoso que reconozca la diversidad de creencias','Tomar partido por una posición','Ignorar la discusión',1,'La ciudadanía se promueve facilitando el diálogo respetuoso ante la diversidad, no evitándolo ni tomando partido.'),
+    q('Un docente comete un error al calificar y el estudiante se lo hace notar. ¿Cuál es la actitud más ética?','Defender la calificación sin revisar','Revisar el caso y corregir el error si corresponde','Ignorar el reclamo','Bajar más la nota por cuestionar',1,'La actitud ética es revisar y corregir cuando corresponde, reconociendo la equivocación.'),
+    q('En una reunión de padres, uno hace comentarios despectivos sobre otro docente. ¿Cómo reacciona?','Validar el comentario para generar empatía','Mantener la calma, no validar y sugerir el conducto regular','Defender acaloradamente al colega ausente','Ignorar por completo la situación',1,'Se mantiene profesionalismo sin validar el comentario, orientando hacia el conducto regular.'),
+    q('Un estudiante entrega un trabajo copiado de internet sin citar la fuente. ¿Cuál es la acción más formativa?','Ponerle cero sin explicación','Hablar sobre la importancia de la autoría, enseñar a citar y aplicar la consecuencia que corresponda','Ignorar la situación','Acusarlo públicamente frente al curso',1,'Combina formación (enseñar a citar) con la consecuencia académica correspondiente, de forma respetuosa.'),
+    q('Un estudiante con discapacidad motriz no puede participar en una actividad física planteada. ¿Qué hace el docente?','Excluirlo de la actividad por seguridad','Adaptar la actividad para que participe de forma alternativa e inclusiva','Asignarle solo tareas de observación','Bajarle la nota por no participar',1,'La adaptación inclusiva permite la participación real, en lugar de la exclusión.'),
+    q('Un colega le pide cubrir su clase sin avisar a coordinación. ¿Qué hace?','Aceptar sin informar a nadie','Aceptar ayudar pero informar a coordinación para mantener transparencia','Negarse rotundamente','Aceptar y pedir algo a cambio',1,'Ayudar es válido, pero debe hacerse con transparencia institucional.'),
+    q('Un estudiante confía que sus padres se están separando y eso afecta su concentración. ¿Cómo procede?','Ignorar por no ser su función','Escuchar con empatía, ofrecer flexibilidad razonable y remitir a orientación si es necesario','Comentarlo con otros docentes','Decirle que se concentre más',1,'Se combina apoyo emocional inmediato con la remisión al canal institucional adecuado.'),
+    q('En un debate de aula sobre un tema polémico, los estudiantes se atacan personalmente. ¿Qué hace?','Dejar que continúen para que "aprendan"','Detener el debate, recordar las normas de respeto y retomar con reglas claras','Suspender el tema definitivamente','Tomar partido en la discusión',1,'Se prioriza el respeto retomando la actividad con reglas claras, sin evitar el tema por completo.'),
+    q('¿Qué estrategia refleja mejor el valor de equidad en un proyecto colaborativo?','Asignar los mismos roles a todos sin distinción','Asignar roles según fortalezas, asegurando que todos participen activamente','Dejar que los estudiantes se organicen sin ninguna orientación','Elegir siempre a los mismos líderes',1,'La equidad se refleja en la participación activa de todos según sus fortalezas, no en la uniformidad forzada.'),
+    q('Un estudiante de bajos recursos no puede comprar los materiales solicitados. ¿Cuál es la respuesta adecuada?','Excluirlo de la actividad','Ofrecer alternativas accesibles o gestionar apoyo institucional, sin exponerlo públicamente','Pedirle que consiga los materiales como sea','Bajarle la nota por no cumplir',1,'Se resuelve con discreción y alternativas, sin exponer la situación del estudiante.'),
+    q('Un estudiante hace un comentario discriminatorio hacia un compañero migrante. ¿Cuál es la intervención adecuada?','Ignorarlo para no darle importancia','Abordarlo de inmediato como oportunidad pedagógica sobre el respeto a la diversidad','Sancionar sin explicación','Hablar con él a solas después de varios días',1,'Se interviene de inmediato, convirtiendo la situación en una oportunidad formativa.'),
+    q('Un docente percibe señales de posible maltrato en casa de un estudiante. ¿Cuál es el paso correcto?','Investigar por su cuenta con la familia','Reportar a través de la ruta de protección institucional','Ignorar hasta tener certeza absoluta','Hablar directamente con los padres para confrontarlos',1,'Se debe reportar por la ruta institucional, sin investigar por cuenta propia.'),
+    q('En una actividad grupal, un estudiante domina la conversación e impide la participación de otros. ¿Qué hace el docente?','Dejar que continúe porque es el más motivado','Establecer turnos de participación y fomentar la escucha activa','Excluirlo de la actividad','Ignorar la dinámica del grupo',1,'Se regula la participación para garantizar que todos tengan espacio, sin excluir a nadie.'),
+    q('¿Cuál actitud refleja mejor la transparencia en la evaluación docente?','Comunicar los criterios de evaluación desde el inicio del período','Explicar los criterios solo si un estudiante reclama','Cambiar los criterios según el desempeño del grupo','Mantener los criterios en reserva',0,'La transparencia implica comunicar los criterios desde el inicio, no solo ante reclamos.'),
+    q('Un padre solicita información confidencial sobre otro estudiante. ¿Cómo responde?','Compartir la información si el padre insiste','Explicar que no puede compartir información de otros estudiantes por confidencialidad','Compartir solo una parte de la información','Remitirlo a que le pregunte directamente al otro estudiante',1,'Se protege la confidencialidad de la información de terceros, sin importar la insistencia.'),
+    q('Ante un conflicto recurrente entre dos docentes del área, ¿qué actitud demuestra madurez profesional?','Evitar el tema indefinidamente','Buscar un espacio de diálogo estructurado, con mediación si es necesario','Tomar partido públicamente por uno de los dos','Ignorar el conflicto ante los estudiantes',1,'La madurez profesional busca resolver el conflicto mediante diálogo estructurado y, si es necesario, mediación.'),
+    q('Un estudiante destacado comienza a mostrar actitudes de superioridad hacia sus compañeros. ¿Cómo interviene el docente?','Ignorar porque su desempeño es bueno','Reconocer su desempeño y promover el trabajo colaborativo y el respeto por los demás','Bajarle la nota por su actitud','Compararlo negativamente con otros estudiantes',1,'Se reconoce el logro sin dejar de trabajar en valores de respeto y colaboración.'),
+    q('En la planeación de un evento institucional, ¿qué actitud refleja mejor el trabajo en equipo?','Que una sola persona asuma todas las tareas','Distribuir tareas según fortalezas y mantener comunicación constante','Repartir tareas al azar sin seguimiento','Evitar la planeación conjunta',1,'El trabajo en equipo efectivo distribuye tareas según fortalezas y mantiene comunicación constante.'),
+    q('Un docente identifica que sus propias creencias podrían influir en cómo trata a ciertos estudiantes. ¿Cuál es la actitud ética?','Negar que eso pueda ocurrir','Reconocer el sesgo y esforzarse conscientemente por un trato equitativo','Justificar el trato diferenciado','Ignorar la reflexión por falta de tiempo',1,'La actitud ética implica reconocer el sesgo propio y trabajar activamente por la equidad.'),
+    q('¿Qué acción evidencia mejor la ciudadanía activa de un docente dentro de la institución?','Evitar los espacios de participación institucional','Participar en el gobierno escolar (consejo académico, comités) con propuestas constructivas','Quejarse informalmente sin proponer soluciones','Delegar toda la participación institucional en otros colegas',1,'La ciudadanía activa se refleja en la participación constructiva en los espacios formales de gobierno escolar.')
+  ]
+},
+
+{ id:'pedagogico', num:'04', title:'Componente Pedagógico', meta:'30 preguntas · didáctica, currículo, evaluación, inclusión',
+  chunkSize:10,
+  theory:`Es uno de los componentes de mayor peso. Se presenta casi siempre como caso de aula con varias estrategias posibles. La clave correcta prioriza: <b>evaluación formativa</b> (no solo sumativa), <b>diferenciación pedagógica</b>, <b>inclusión</b> y fundamentación en el currículo — nunca la opción más punitiva o la que evita el problema.`,
+  questions:[
+    q('Un estudiante domina la teoría de programación pero tiene bajo desempeño en evaluaciones escritas tradicionales. ¿Qué hace?','Mantener solo evaluaciones escritas para ser "objetivo"','Diversificar la evaluación con proyectos prácticos que permitan demostrar la competencia','Bajarle la exigencia sin ajustar la evaluación','Recomendar que cambie de asignatura',1,'La diversificación evaluativa permite demostrar la competencia real de distintas formas, alineado con la evaluación formativa.'),
+    q('Al planear una unidad sobre bases de datos, ¿qué secuencia es más coherente con el aprendizaje significativo?','Definiciones teóricas → examen final','Situación problema real → conceptos → práctica guiada → producto final','Examen diagnóstico → práctica libre sin guía','Copiar definiciones → repetirlas en clase',1,'Partir de una situación real hacia concepto, práctica guiada y producto es coherente con el aprendizaje significativo.'),
+    q('Un estudiante con discapacidad auditiva está en la clase de tecnología. Según el Decreto 1421/2017, ¿qué debe hacer el docente?','Nada distinto, la ley no aplica a esta área','Realizar ajustes razonables apoyado en el PIAR del estudiante','Remitirlo a educación especial fuera del aula regular','Excluirlo de actividades prácticas',1,'El Decreto 1421 exige ajustes razonables dentro del aula regular, articulados con el PIAR.'),
+    q('Varios estudiantes obtienen resultados bajos en el mismo concepto. ¿Cuál es la acción más adecuada?','Continuar sin modificaciones','Analizar la causa y replantear la estrategia de enseñanza de ese concepto','Bajar la dificultad de todas las próximas evaluaciones','Culpar al nivel académico previo',1,'La evaluación formativa implica usar los resultados para ajustar la enseñanza, no continuar o simplificar sin análisis.'),
+    q('Un estudiante muy avanzado en programación se aburre con las actividades. ¿Qué estrategia es más apropiada?','Ignorar la situación','Proponer retos de profundización o enriquecimiento curricular','Pedirle que solo ayude a calificar a otros','Bajarle la nota por desinterés',1,'El enriquecimiento curricular responde a estudiantes con ritmos más avanzados, manteniendo su motivación.'),
+    q('¿Cuál describe mejor la evaluación formativa frente a la sumativa?','La formativa solo se aplica al final del período','La formativa acompaña el proceso y retroalimenta; la sumativa certifica un resultado final','Son términos equivalentes','La sumativa no requiere calificación',1,'La formativa es continua y orientada a la mejora; la sumativa certifica el logro al final del proceso.'),
+    q('Los DBA de tecnología cumplen la función de:','Reemplazar el PEI institucional','Establecer aprendizajes estructurantes esperados por grado, como referente nacional','Ser opcionales según el docente','Sustituir la evaluación institucional',1,'Los DBA son un referente nacional de los aprendizajes esperados por grado, no opcionales.'),
+    q('Un grupo de grado 8 presenta desmotivación hacia informática. ¿Cuál es la estrategia más alineada con buenas prácticas?','Aumentar evaluaciones sorpresa para "disciplinar"','Indagar causas y rediseñar actividades significativas y contextualizadas','Informar a padres sin intervenir pedagógicamente antes','Mantener la metodología porque el currículo no cambia',1,'La respuesta parte de indagar causas y ajustar la práctica docente, no de medidas punitivas.'),
+    q('Un docente planea evaluar un proyecto de programación solo con examen escrito teórico. ¿Qué recomienda un enfoque de evaluación auténtica?','Mantener solo el examen escrito','Complementar con una rúbrica que valore el producto funcional y el proceso','Eliminar toda evaluación escrita','Evaluar solo la ortografía del código',1,'La evaluación auténtica valora el producto y el proceso, no solo el conocimiento teórico aislado.'),
+    q('Un docente activa conocimientos previos con lluvia de ideas al iniciar una unidad. Esto se fundamenta en:','El aprendizaje significativo, que parte de lo que el estudiante ya sabe','La memorización repetitiva','La evaluación sumativa','El aprendizaje puramente expositivo',0,'El aprendizaje significativo parte de conectar los nuevos contenidos con los conocimientos previos del estudiante.'),
+    q('Un docente usa el error de un estudiante como ejemplo para todo el grupo, sin señalar quién lo cometió. Esto es coherente con:','Un ambiente de aprendizaje seguro basado en evaluación formativa','Una práctica de exposición pública del error','Una sanción disciplinaria','Una evaluación sumativa punitiva',0,'Usar el error de forma anónima y constructiva favorece un ambiente seguro de aprendizaje.'),
+    q('¿Cuál es el propósito principal del PEI frente a la planeación de aula?','Orientar la coherencia entre la misión institucional y las prácticas de cada docente','Reemplazar la planeación individual de cada docente','Fijar exclusivamente el calendario académico','Sustituir el manual de convivencia',0,'El PEI orienta la coherencia institucional, sin sustituir la planeación específica de cada docente.'),
+    q('Los estudiantes de un docente de tecnología aprenden mejor con proyectos aplicados que con exposiciones magistrales. ¿Qué enfoque es más coherente?','Aprendizaje basado en proyectos (ABP)','Clase magistral exclusiva','Memorización de manuales técnicos','Evaluación únicamente escrita',0,'El ABP responde directamente a un aprendizaje más aplicado y activo, coherente con la observación descrita.'),
+    q('Algunos estudiantes terminan las actividades mucho antes que otros. ¿Qué estrategia de diferenciación es más adecuada?','Ofrecer actividades de extensión o profundización a quienes terminan primero','Hacerlos esperar sin actividad adicional','Bajarles la nota por "adelantarse"','Pedirles que ayuden a hacer disciplina',0,'La diferenciación pedagógica ofrece retos adicionales a quienes avanzan más rápido.'),
+    q('Un docente comparte rúbricas de evaluación con los estudiantes antes de un proyecto. Esto favorece principalmente:','La transparencia y la autorregulación del aprendizaje','La reducción del tiempo de clase','La eliminación de la evaluación formativa','La memorización de criterios sin aplicación',0,'Compartir rúbricas favorece la transparencia y que el estudiante autorregule su propio proceso.'),
+    q('¿Cuál práctica refleja mejor la evaluación diagnóstica?','Aplicar una actividad inicial para identificar saberes previos antes de la unidad','Aplicar un examen final para asignar la nota del período','Evaluar solo la asistencia','Aplicar la misma prueba al final de cada unidad sin variación',0,'La evaluación diagnóstica se aplica al inicio para identificar el punto de partida de los estudiantes.'),
+    q('Un docente de informática integra su área con ciencias sociales en un proyecto sobre datos poblacionales. Esto corresponde a:','Un enfoque de integración curricular o interdisciplinariedad','Una evaluación sumativa aislada','Una actividad extracurricular sin relación con el currículo','Una sustitución del área de sociales',0,'Combinar áreas del conocimiento en un mismo proyecto es un ejemplo de interdisciplinariedad.'),
+    q('¿Qué elemento es fundamental para un ambiente de aprendizaje inclusivo en el aula de tecnología?','Considerar distintos ritmos y estilos de aprendizaje, y el acceso equitativo a los equipos','Aplicar la misma actividad exacta a todos sin variación','Reducir la exigencia general del curso','Separar físicamente a los estudiantes con mayores dificultades',0,'La inclusión implica atender la diversidad de ritmos y garantizar acceso equitativo a los recursos.'),
+    q('Un estudiante con TDAH se distrae fácilmente en clases prácticas de programación. ¿Cuál es la estrategia más adecuada?','Dividir las tareas en pasos cortos y ofrecer retroalimentación frecuente','Ignorar la dificultad para no "etiquetarlo"','Reducir su participación en actividades prácticas','Aumentar la duración de las tareas para "entrenar" su atención',0,'Dividir en pasos cortos con retroalimentación frecuente es una estrategia efectiva de apoyo a la atención sostenida.'),
+    q('Al final de cada unidad, un docente hace autoevaluación y coevaluación con sus estudiantes. Esto fortalece principalmente:','La metacognición y la corresponsabilidad en el aprendizaje','La reducción de la carga de trabajo del docente','La eliminación de la evaluación docente','La memorización de contenidos',0,'La autoevaluación y coevaluación desarrollan la conciencia sobre el propio aprendizaje y la corresponsabilidad.'),
+    q('¿Cuál situación representa mejor el concepto de "andamiaje" en la enseñanza?','El docente brinda apoyo progresivo que disminuye a medida que el estudiante gana autonomía','El docente resuelve siempre el problema por el estudiante','El docente no interviene nunca en el proceso','El docente da la respuesta correcta de inmediato',0,'El andamiaje implica un apoyo temporal y decreciente que fomenta la autonomía progresiva.'),
+    q('Un docente inicia una secuencia con una pregunta problematizadora de la vida cotidiana de los estudiantes. Busca principalmente:','Generar motivación intrínseca y contextualizar el aprendizaje','Evaluar de inmediato al estudiante','Reducir el tiempo de la clase','Evitar la planeación curricular formal',0,'Partir de una pregunta contextualizada genera motivación intrínseca y relevancia para el estudiante.'),
+    q('¿Qué papel cumplen los Estándares Básicos de Competencias frente al currículo institucional?','Sirven como referente nacional que orienta, sin sustituir, la autonomía curricular institucional','Sustituyen por completo el PEI','Son opcionales y sin ninguna relevancia','Reemplazan la planeación de aula',0,'Los estándares orientan a nivel nacional, pero cada institución conserva autonomía para su currículo.'),
+    q('Los resultados de una prueba tipo Saber muestran debilidades en resolución de problemas. ¿Qué acción es más pertinente?','Ignorar el resultado por ser una prueba externa','Ajustar la planeación de aula para fortalecer explícitamente esa competencia','Aumentar solo la cantidad de tareas para la casa','Culpar únicamente a los estudiantes',1,'Los resultados de pruebas externas deben usarse para ajustar la planeación y fortalecer las debilidades detectadas.'),
+    q('¿Qué estrategia es más coherente con el aprendizaje colaborativo en tecnología?','Organizar equipos con roles definidos y objetivos comunes que requieran la participación de todos','Permitir que un solo estudiante haga todo el trabajo','Evaluar solo individualmente sin trabajo en equipo','Formar grupos sin ninguna estructura de roles',0,'El aprendizaje colaborativo requiere roles definidos que exijan la participación real de todos.'),
+    q('Un docente nota que su metodología expositiva no genera los resultados esperados. ¿Cuál es la actitud más adecuada?','Reflexionar sobre su práctica (praxis reflexiva) y ajustar la metodología según la evidencia','Culpar a los estudiantes por su falta de interés','Mantener la misma metodología indefinidamente','Aumentar la exigencia sin cambiar el método',0,'La praxis reflexiva implica ajustar la enseñanza a partir de la evidencia observada en el aula.'),
+    q('¿Qué distingue principalmente a una evaluación sumativa de una formativa?','La sumativa certifica un resultado final; la formativa acompaña y retroalimenta el proceso','Ambas cumplen exactamente la misma función','La formativa siempre tiene mayor peso porcentual','La sumativa se aplica solo al inicio del período',0,'Esta es la distinción central entre ambos tipos de evaluación según su propósito.'),
+    q('Un docente busca fomentar la creatividad en un proyecto de diseño de aplicaciones. ¿Cuál es la estrategia más apropiada?','Permitir múltiples soluciones válidas a un mismo problema','Imponer un único camino de solución correcto','Evaluar solo la exactitud técnica sin considerar la originalidad','Limitar las herramientas disponibles al mínimo',0,'Permitir múltiples soluciones válidas fomenta la creatividad y el pensamiento divergente.'),
+    q('¿Cuál es el propósito de la planeación por competencias frente a la planeación por contenidos?','Orientar el aprendizaje hacia el saber hacer en contexto, no solo hacia la acumulación de información','Eliminar por completo los contenidos teóricos','Reducir la planeación a una lista de temas','Enfocarse únicamente en la memorización',0,'La planeación por competencias prioriza la aplicación del conocimiento en contexto sobre la mera acumulación de contenidos.'),
+    q('Un docente reflexiona sobre cómo sus prácticas evaluativas afectan la motivación de sus estudiantes. Esta reflexión se enmarca en:','La dimensión ética y profesional de la práctica docente','Un asunto exclusivamente administrativo','Una función ajena al rol docente','Un tema que no requiere ajuste alguno',0,'Reflexionar sobre el impacto de las propias prácticas es parte de la dimensión ética y profesional del docente.')
+  ]
+},
+
+{ id:'disciplinar', num:'05', title:'Dominio Disciplinar · Sistemas e Informática', meta:'40 preguntas · técnico + aplicación didáctica',
+  chunkSize:10,
+  theory:`Se ancla en los <b>DBA y Orientaciones de Tecnología e Informática del MEN</b>: pensamiento computacional, redes, bases de datos, desarrollo web/software, seguridad y uso ético de las TIC. Combina preguntas técnicas puras con preguntas de aplicación didáctica del contenido disciplinar en el aula.`,
+  questions:[
+    q('¿Qué dispositivo de red dirige el tráfico de forma inteligente hacia el destinatario correcto, a diferencia de un hub?','Switch','Módem','Repetidor','Firewall',0,'El switch dirige el tráfico hacia el puerto correcto, a diferencia del hub que lo transmite a todos.'),
+    q('Una relación "muchos a muchos" en bases de datos se implementa generalmente mediante:','Una clave foránea directa en una tabla','Una tabla intermedia con claves foráneas de ambas tablas','Eliminando una de las tablas','Una vista sin claves',1,'Las relaciones muchos a muchos requieren una tabla intermedia con las claves foráneas de ambas entidades.'),
+    q('Una estructura que repite instrucciones mientras se cumpla una condición se denomina:','Estructura secuencial','Estructura de selección','Estructura de repetición o iteración','Estructura de encapsulamiento',2,'Los bucles ("mientras", "para") ejecutan instrucciones repetidamente mientras se cumpla una condición.'),
+    q('¿Cuál es la función principal del protocolo DHCP?','Cifrar los datos transmitidos','Asignar automáticamente direcciones IP a los dispositivos','Traducir nombres de dominio a IP','Enrutar paquetes entre redes distintas',1,'DHCP asigna direcciones IP automáticamente a los dispositivos que se conectan a la red.'),
+    q('Al descomponer un problema complejo en partes más simples, un estudiante aplica la habilidad de:','Abstracción','Descomposición','Depuración','Generalización de patrones',1,'La descomposición divide un problema complejo en subproblemas más manejables.'),
+    q('¿Qué diferencia principal existe entre HTML y CSS?','HTML define la estructura; CSS define la presentación visual','Cumplen exactamente la misma función','CSS define la estructura; HTML define el estilo','Ambos son lenguajes orientados a objetos',0,'HTML estructura el contenido; CSS controla su apariencia visual.'),
+    q('El "phishing" se refiere a:','Un virus que daña el hardware','Un ataque que engaña al usuario para obtener información confidencial','Un protocolo de cifrado','Un método de respaldo automático',1,'El phishing es una técnica de ingeniería social para obtener datos confidenciales mediante engaño.'),
+    q('Un docente pide crear pseudocódigo antes de programar. El propósito pedagógico principal es:','Evitar que usen la computadora','Fomentar la planeación lógica antes de la sintaxis del lenguaje','Sustituir la programación real','Evaluar solo la ortografía',1,'El pseudocódigo permite centrarse en la lógica antes de enfrentar la sintaxis de un lenguaje específico.'),
+    q('¿Cuál es la función principal de un sistema operativo?','Administrar los recursos de hardware y software del computador','Diseñar páginas web','Compilar exclusivamente código Java','Cifrar archivos automáticamente',0,'El sistema operativo gestiona y coordina el uso del hardware y software del equipo.'),
+    q('La dirección IP 192.168.1.1 corresponde típicamente a:','Una dirección IP pública','Una dirección IP privada, común en routers','Un protocolo de correo electrónico','Una dirección MAC',1,'El rango 192.168.x.x corresponde a direcciones IP privadas usadas en redes locales.'),
+    q('¿Qué tipo de memoria es volátil y se borra al apagar el computador?','Disco duro','RAM','SSD','ROM',1,'La memoria RAM es volátil: pierde su contenido al apagar el equipo.'),
+    q('En bases de datos, una clave primaria se caracteriza por:','Permitir valores repetidos','Identificar de manera única cada registro, sin valores nulos ni repetidos','Ser opcional en cualquier tabla','Solo aplicar a tablas grandes',1,'La clave primaria garantiza unicidad e integridad de cada registro en una tabla.'),
+    q('¿Cuál es la diferencia entre un lenguaje compilado y uno interpretado?','El compilado traduce todo el código antes de ejecutarse; el interpretado lo hace línea por línea','Son exactamente lo mismo','El interpretado es siempre más rápido','El compilado no requiere traducción alguna',0,'El compilado traduce todo el programa antes de ejecutar; el interpretado traduce y ejecuta línea por línea.'),
+    q('Una "pila" (stack) en estructuras de datos sigue el principio:','FIFO','LIFO','Aleatorio','Prioridad numérica',1,'La pila sigue LIFO: el último elemento en entrar es el primero en salir.'),
+    q('¿Qué protocolo se usa para la transferencia segura y cifrada de páginas web?','FTP','HTTP','HTTPS','SMTP',2,'HTTPS añade cifrado (TLS/SSL) a la transferencia de datos en la web.'),
+    q('En seguridad informática, un "firewall" tiene como función principal:','Acelerar la conexión a internet','Filtrar el tráfico de red según reglas de seguridad predefinidas','Almacenar copias de seguridad','Traducir direcciones IP',1,'El firewall filtra el tráfico entrante y saliente según reglas de seguridad.'),
+    q('¿Cuál es el propósito principal del lenguaje SQL?','Diseñar interfaces gráficas','Consultar y administrar datos en bases de datos relacionales','Compilar programas en C++','Cifrar contraseñas',1,'SQL es el lenguaje estándar para consultar y administrar bases de datos relacionales.'),
+    q('En el modelo OSI, ¿en qué capa opera principalmente el protocolo TCP?','Capa física','Capa de enlace de datos','Capa de transporte','Capa de aplicación',2,'TCP opera en la capa de transporte, garantizando la entrega confiable de datos.'),
+    q('¿Qué estructura de control se usa cuando se conoce de antemano el número de repeticiones?','Bucle "mientras" (while)','Bucle "para" (for)','Estructura condicional simple','Estructura secuencial',1,'El bucle "para" (for) es apropiado cuando el número de iteraciones es conocido de antemano.'),
+    q('¿Cuál es la diferencia entre software libre y software gratuito (freeware)?','El libre otorga libertades de uso, estudio, modificación y distribución del código; el gratuito solo es de costo cero','Son términos idénticos','El freeware siempre incluye el código fuente','El software libre siempre tiene costo',0,'El software libre implica libertades sobre el código; el freeware solo implica gratuidad, sin esas libertades.'),
+    q('En una hoja de cálculo, ¿qué función suma solo los valores que cumplen una condición?','PROMEDIO','SUMAR.SI','CONTAR','BUSCARV',1,'SUMAR.SI (SUMIF) suma valores que cumplen un criterio específico dentro de un rango.'),
+    q('¿Qué término describe la capacidad de un sistema de adaptarse a usuarios con discapacidad?','Usabilidad','Accesibilidad','Escalabilidad','Portabilidad',1,'La accesibilidad se refiere a que un sistema pueda ser usado por personas con distintas capacidades.'),
+    q('En programación orientada a objetos, la "herencia" permite:','Que una clase adquiera atributos y métodos de otra clase','Eliminar atributos de una clase padre','Convertir una clase en una función','Cifrar los métodos de una clase',0,'La herencia permite que una clase hija reutilice y extienda atributos y métodos de una clase padre.'),
+    q('¿Cuál es la función principal de un servidor DNS?','Traducir nombres de dominio en direcciones IP','Asignar direcciones IP automáticamente','Cifrar el tráfico web','Almacenar copias de seguridad',0,'El DNS traduce nombres de dominio legibles (como un sitio web) a direcciones IP numéricas.'),
+    q('En una base de datos escolar, ¿qué relación existe típicamente entre "Estudiante" y "Curso"?','Uno a uno','Muchos a muchos, resuelta con una tabla intermedia de matrículas','Uno a muchos exclusivamente','No existe relación posible',1,'Un estudiante puede tener varios cursos y un curso varios estudiantes: es una relación muchos a muchos.'),
+    q('¿Qué diferencia principal existe entre un virus informático y un ransomware?','El virus se replica infectando archivos; el ransomware cifra datos y exige pago','Son exactamente lo mismo','El ransomware nunca afecta archivos','El virus siempre exige un pago',0,'El virus se propaga infectando archivos; el ransomware cifra la información y exige un rescate.'),
+    q('El enfoque de "apropiación y uso de la tecnología" en el currículo MEN busca que el estudiante:','Memorice manuales técnicos','Comprenda y utilice la tecnología de forma crítica y reflexiva, no solo instrumental','Use exclusivamente software extranjero','Evite el uso de dispositivos digitales',1,'El currículo busca un uso crítico y reflexivo de la tecnología, más allá del manejo puramente instrumental.'),
+    q('Al enseñar programación por primera vez en básica secundaria, ¿qué enfoque didáctico es más apropiado inicialmente?','Programación en lenguajes de bajo nivel','Programación por bloques o entornos visuales','Exámenes teóricos exclusivamente sobre sintaxis','Programación funcional avanzada',1,'Los entornos de bloques reducen la barrera sintáctica inicial y facilitan el aprendizaje de la lógica.'),
+    q('¿Cuál es el propósito principal de realizar copias de seguridad (backup) periódicas?','Aumentar la velocidad del computador','Prevenir la pérdida de información ante fallos, ataques o errores humanos','Reducir el tamaño de los archivos','Actualizar automáticamente el software',1,'Los backups protegen la información ante posibles pérdidas por fallos, ataques o errores.'),
+    q('¿Qué diferencia existe entre una red LAN y una red WAN?','La LAN cubre un área geográfica reducida; la WAN cubre áreas extensas','Son exactamente iguales','La WAN es siempre más rápida que la LAN','La LAN requiere siempre conexión a internet',0,'LAN es de alcance local (un edificio, por ejemplo); WAN cubre áreas geográficas extensas.'),
+    q('¿Qué es un algoritmo en el contexto del pensamiento computacional?','Un lenguaje de programación específico','Una secuencia finita y ordenada de pasos para resolver un problema','Un tipo de base de datos','Un dispositivo de hardware',1,'Un algoritmo es una secuencia ordenada y finita de pasos para resolver un problema.'),
+    q('¿Cuál sería un ejemplo apropiado de proyecto de aplicación práctica de bases de datos en media técnica?','Memorizar comandos SQL sin aplicación','Diseñar una base de datos para gestionar el préstamo de libros de la biblioteca escolar','Copiar una base de datos ya existente sin modificarla','Evaluar solo de forma teórica sin proyecto',1,'Un proyecto aplicado como la gestión de préstamos de biblioteca conecta la teoría con un caso real y significativo.'),
+    q('¿Cuál es la función principal de un sistema de control de versiones como Git?','Diseñar interfaces gráficas','Registrar y gestionar los cambios en el código, facilitando el trabajo colaborativo','Cifrar archivos automáticamente','Compilar código en tiempo real',1,'Git permite rastrear el historial de cambios en el código y colaborar de forma ordenada en equipo.'),
+    q('¿Cuál es un uso pedagógicamente responsable de la inteligencia artificial en el aula?','Usarla para que los estudiantes entreguen trabajos sin revisión','Usarla como apoyo para retroalimentación, enseñando también a verificar y cuestionar sus resultados','Prohibirla por completo sin ninguna discusión','Sustituir totalmente la evaluación docente',1,'El uso responsable de la IA implica apoyo pedagógico combinado con pensamiento crítico sobre sus resultados.'),
+    q('¿Qué diferencia existe entre la memoria RAM y el almacenamiento en disco (HDD/SSD)?','La RAM es volátil y rápida para procesos activos; el disco es permanente y más lento','Son exactamente iguales en función','El disco es siempre más rápido que la RAM','La RAM almacena datos de forma permanente',0,'La RAM es temporal y veloz para procesos en ejecución; el disco almacena datos de forma persistente.'),
+    q('¿Qué lenguaje se usa típicamente para añadir interactividad y comportamiento dinámico a una página web?','CSS','HTML','JavaScript','SQL',2,'JavaScript permite añadir comportamiento dinámico e interactividad a las páginas web.'),
+    q('¿Cuál es el propósito principal de la normalización de bases de datos?','Aumentar la redundancia de datos','Reducir la redundancia de datos y evitar anomalías en las operaciones','Eliminar todas las relaciones entre tablas','Aumentar el tamaño de los archivos de la base de datos',1,'La normalización organiza los datos para reducir redundancia y evitar anomalías al insertar, actualizar o eliminar.'),
+    q('¿Qué principio de ética digital debe enseñarse prioritariamente sobre el uso de imágenes de internet en trabajos escolares?','Usar cualquier imagen sin restricción','El respeto a los derechos de autor y la correcta atribución de fuentes','Evitar el uso de imágenes por completo','Modificar las imágenes para evitar identificarlas',1,'Se debe enseñar el respeto a los derechos de autor y la correcta atribución de las fuentes utilizadas.'),
+    q('¿Qué diferencia existe entre un sistema operativo de código abierto como Linux y uno privativo como Windows?','Linux permite acceder, modificar y distribuir su código libremente; Windows no','Son exactamente iguales en licenciamiento','Windows es siempre gratuito','Linux nunca puede usarse en computadores personales',0,'El software de código abierto como Linux permite el acceso y modificación libre del código fuente.'),
+    q('Al planear una clase de ciberseguridad para grado 9, ¿cuál es el objetivo de aprendizaje más pertinente?','Que memoricen los nombres de todos los tipos de malware','Que reconozcan riesgos comunes (phishing, contraseñas débiles) y apliquen buenas prácticas de protección','Que instalen software de hacking con fines educativos','Que eviten por completo el uso de internet',1,'El objetivo pedagógico central es que los estudiantes reconozcan riesgos y adopten prácticas seguras aplicables a su vida digital.')
+  ]
+}
+
+];
+
+/* ============ STATE ============ */
+let progress = {}; // key: subjectId + '-b' + blockIndex -> {done, bestScore}
+let currentSubject = null;
+let currentBlockIndex = 0;
+let currentQuestions = [];
+let currentIndex = 0;
+let currentScore = 0;
+let currentAnswered = false;
+
+const STORAGE_KEY = 'cnsc-sistemas-progress-v2';
+
+function chunk(arr, size){
+  const out = [];
+  for(let i=0;i<arr.length;i+=size) out.push(arr.slice(i,i+size));
+  return out;
+}
+SUBJECTS.forEach(s=>{ s.blocks = chunk(s.questions, s.chunkSize); });
+
+async function loadProgress(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY);
+    if(res && res.value){ progress = JSON.parse(res.value); }
+  }catch(e){ progress = {}; }
+  renderDashboard();
+}
+async function saveProgress(){
+  try{ await window.storage.set(STORAGE_KEY, JSON.stringify(progress)); }
+  catch(e){ console.error('No se pudo guardar el progreso', e); }
+}
+
+function blockKey(subjectId, i){ return subjectId+'-b'+i; }
+function isSubjectDone(s){
+  return s.blocks.every((b,i)=> progress[blockKey(s.id,i)] && progress[blockKey(s.id,i)].done);
+}
+function isSubjectUnlocked(index){
+  if(index===0) return true;
+  return isSubjectDone(SUBJECTS[index-1]);
+}
+function totalBlocks(){ return SUBJECTS.reduce((sum,s)=>sum+s.blocks.length,0); }
+function doneBlocks(){
+  let c=0;
+  SUBJECTS.forEach(s=>s.blocks.forEach((b,i)=>{ if(progress[blockKey(s.id,i)] && progress[blockKey(s.id,i)].done) c++; }));
+  return c;
+}
+
+let openSubjectId = null;
+
+function renderDashboard(){
+  const list = document.getElementById('subjectList');
+  list.innerHTML = '';
+
+  SUBJECTS.forEach((s, idx)=>{
+    const unlocked = isSubjectUnlocked(idx);
+    const done = isSubjectDone(s);
+    const blocksDoneCount = s.blocks.filter((b,i)=>progress[blockKey(s.id,i)]&&progress[blockKey(s.id,i)].done).length;
+
+    const card = document.createElement('div');
+    card.className = 'subject-card' + (unlocked?'':' locked') + (done?' done':'') + (openSubjectId===s.id?' open':'');
+
+    let statusHtml;
+    if(!unlocked) statusHtml = '<span class="subject-status status-locked">BLOQUEADO</span>';
+    else if(done) statusHtml = '<span class="subject-status status-done">COMPLETO</span>';
+    else statusHtml = `<span class="subject-status status-progress">${blocksDoneCount}/${s.blocks.length} BLOQUES</span>`;
+
+    const head = document.createElement('div');
+    head.className = 'subject-head' + (unlocked?'':' locked');
+    head.innerHTML = `
+      <div class="subject-num">${s.num}</div>
+      <div class="subject-body">
+        <p class="subject-title">${s.title}</p>
+        <p class="subject-meta">${s.meta}</p>
+      </div>
+      ${statusHtml}
+      <span class="chevron">▶</span>
+    `;
+    head.onclick = ()=>{ if(unlocked){ openSubjectId = (openSubjectId===s.id)?null:s.id; renderDashboard(); } };
+    card.appendChild(head);
+
+    const panel = document.createElement('div');
+    panel.className = 'subject-panel';
+    const blocksHtml = s.blocks.map((b,i)=>{
+      const st = progress[blockKey(s.id,i)];
+      const bd = st && st.done;
+      return `<button class="block-chip ${bd?'done':''}" onclick="startBlock('${s.id}',${i})">
+        <span class="block-num">Bloque ${i+1} · ${b.length} preg.</span>
+        <span class="block-title">${bd?'Completado':'Comenzar'}</span>
+        ${bd?`<span class="block-score">${st.bestScore}%</span>`:''}
+      </button>`;
+    }).join('');
+    panel.innerHTML = `<div class="panel-inner">
+      <div class="theory-mini">${s.theory}</div>
+      <div class="blocks-grid">${blocksHtml}</div>
+    </div>`;
+    card.appendChild(panel);
+
+    list.appendChild(card);
+  });
+
+  const total = totalBlocks();
+  const doneC = doneBlocks();
+  document.getElementById('progressFill').style.width = (total? (doneC/total*100):0)+'%';
+  document.getElementById('progressLabel').textContent = `${doneC} / ${total} bloques completados`;
+}
+
+function showDashboard(){
+  document.getElementById('dashboardView').classList.remove('hidden');
+  document.getElementById('quizView').classList.add('hidden');
+  document.getElementById('resultView').classList.add('hidden');
+  renderDashboard();
+  window.scrollTo(0,0);
+}
+
+/* ============ QUIZ ENGINE ============ */
+function startBlock(subjectId, blockIndex){
+  currentSubject = SUBJECTS.find(s=>s.id===subjectId);
+  currentBlockIndex = blockIndex;
+  currentQuestions = currentSubject.blocks[blockIndex];
+  currentIndex = 0;
+  currentScore = 0;
+  document.getElementById('dashboardView').classList.add('hidden');
+  document.getElementById('quizView').classList.remove('hidden');
+  document.getElementById('resultView').classList.add('hidden');
+  renderQuestion();
+  window.scrollTo(0,0);
+}
+
+function renderQuestion(){
+  currentAnswered = false;
+  const qd = currentQuestions[currentIndex];
+  document.getElementById('quizProgress').textContent =
+    `${currentSubject.title} · Bloque ${currentBlockIndex+1} · Pregunta ${currentIndex+1} de ${currentQuestions.length}`;
+
+  const area = document.getElementById('quizArea');
+  const letters = ['A','B','C','D'];
+  area.innerHTML = `
+    <div class="q-card">
+      <div class="q-eyebrow">${currentSubject.title}</div>
+      ${qd.type==='passage' ? `<div class="q-passage">${qd.passage}</div>` : ''}
+      <p class="q-text">${qd.text}</p>
+      <div class="options" id="optionsArea">
+        ${qd.options.map((opt,i)=>`
+          <button class="option" data-i="${i}" onclick="selectOption(${i})">
+            <span class="opt-letter">${letters[i]}</span><span>${opt}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="feedback" id="feedbackBox"></div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+        ${currentIndex===currentQuestions.length-1 ? 'Ver resultado del bloque →' : 'Siguiente pregunta →'}
+      </button>
+    </div>
+  `;
+}
+
+function selectOption(i){
+  if(currentAnswered) return;
+  currentAnswered = true;
+  const qd = currentQuestions[currentIndex];
+  const correct = qd.correct;
+  const opts = document.querySelectorAll('.option');
+  opts.forEach((el,idx)=>{
+    el.onclick = null;
+    if(idx===correct) el.classList.add('correct');
+    else if(idx===i) el.classList.add('incorrect');
+  });
+  const fb = document.getElementById('feedbackBox');
+  if(i===correct){
+    currentScore++;
+    fb.classList.add('show');
+    fb.innerHTML = `<b>Correcto.</b> ${qd.explanation}`;
+  } else {
+    fb.classList.add('show','wrong');
+    fb.innerHTML = `<b>La respuesta correcta era la opción ${['A','B','C','D'][correct]}.</b> ${qd.explanation}`;
+  }
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function nextQuestion(){
+  if(currentIndex < currentQuestions.length-1){
+    currentIndex++;
+    renderQuestion();
+  } else {
+    finishBlock();
+  }
+}
+
+async function finishBlock(){
+  const pct = Math.round((currentScore/currentQuestions.length)*100);
+  const passed = pct >= 60;
+  const key = blockKey(currentSubject.id, currentBlockIndex);
+  const prevBest = (progress[key] && progress[key].bestScore) || 0;
+  progress[key] = { done: passed || (progress[key] && progress[key].done), bestScore: Math.max(prevBest, pct) };
+  await saveProgress();
+
+  document.getElementById('quizView').classList.add('hidden');
+  document.getElementById('resultView').classList.remove('hidden');
+  document.getElementById('resultModuleName').textContent = `${currentSubject.title.toUpperCase()} · BLOQUE ${currentBlockIndex+1}`;
+  document.getElementById('resultScore').textContent = pct+'%';
+  document.getElementById('resultMsg').textContent = passed
+    ? 'Bloque superado. Puedes seguir con el siguiente bloque cuando quieras — no hay prisa.'
+    : 'Necesitas 60% o más para marcar el bloque como superado. Repítelo cuando quieras, sin límite de intentos.';
+  openSubjectId = currentSubject.id;
+  window.scrollTo(0,0);
+}
+
+function retryQuiz(){
+  startBlock(currentSubject.id, currentBlockIndex);
+}
+
+/* ============ INIT ============ */
+loadProgress();
+</script>
+</body>
+</html>
