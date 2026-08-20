@@ -38,6 +38,14 @@
   .status-locked{background:var(--paper-2);color:var(--ink-soft);}
   .status-progress{background:#EFE0BE;color:#6B4E14;}
   .status-done{background:#DCE9DF;color:var(--green-ok);}
+  .band-none{background:var(--paper-2);color:var(--ink-soft);}
+  .band-red{background:#F5DAD5;color:#8C3B2E;}
+  .band-orange{background:#F5E4C8;color:#8A5A12;}
+  .band-yellow{background:#F5F0C8;color:#7A6D0E;}
+  .band-green{background:#DCE9DF;color:#3D6B4F;}
+  .band-blue{background:#D8E3F0;color:#2C4A6E;}
+  .recommend-box{background:#1B2A41;color:#fff;padding:14px 18px;margin-bottom:16px;font-size:13.5px;border-left:5px solid var(--gold);}
+  .type-tag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--brick);border:1px solid var(--brick);padding:1px 6px;border-radius:2px;margin-left:8px;vertical-align:middle;}
   .chevron{font-size:12px;color:var(--ink-soft);transition:transform .2s;}
   .subject-card.open .chevron{transform:rotate(90deg);}
 
@@ -102,7 +110,7 @@
   <div class="inner">
     <div class="eyebrow">Expediente No. 001-2026 · Concurso Docente CNSC</div>
     <h1>Preparación · Docente de Aula, Sistemas e Informática</h1>
-    <div class="subtitle">Réplica de la estructura y proporción del examen real del ICFES/CNSC (172 preguntas en total, en la misma proporción por componente), dividida en bloques de ~10 preguntas con lectura previa, para que avances por partes, cuando puedas.</div>
+    <div class="subtitle">Basado en la estructura oficial del examen CNSC (5 componentes: Marco Legal, Aptitud Verbal, Aptitud Numérica, Psicotécnica, Pedagógico y Disciplinar) más un tema complementario de Ruralidad — 184 preguntas en total, en bloques pequeños con lectura previa, navegación libre y recomendación automática de qué reforzar.</div>
     <div class="progress-strip">
       <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       <div class="progress-label" id="progressLabel">0 / 0 bloques completados</div>
@@ -147,17 +155,18 @@ function qp(passage,text,a,b,c,d,correct,explanation){ return {type:'passage',pa
 /* ============ DATA: SUBJECTS ============ */
 const SUBJECTS = [
 
-{ id:'legal', num:'00', title:'Marco Legal y Normativo', meta:'12 preguntas · fundamento jurídico del concurso',
+{ id:'legal', num:'00', title:'Marco Legal y Normativo', meta:'12 preguntas · fundamento jurídico del concurso', type:'oficial',
   chunkSize:6,
   theory:[
-    {tag:'Decreto Ley 1278/2002', text:'<b>Estatuto de Profesionalización Docente.</b> Regula el ingreso, ascenso y retiro del servicio educativo estatal por concurso de méritos. Define el escalafón docente (grados 1 a 3, con niveles A-D), el período de prueba de 4 meses tras la posesión, y la evaluación anual de desempeño (mínimo 60% para permanecer). También establece la Evaluación de Carácter Diagnóstico Formativo (ECDF) para el ascenso o reubicación salarial.'},
-    {tag:'Ley 115/1994', text:'<b>Ley General de Educación.</b> Establece los fines de la educación, la estructura del servicio educativo (preescolar, básica, media), el Proyecto Educativo Institucional (PEI) y las áreas obligatorias del currículo, entre ellas Tecnología e Informática. Es la norma marco de todo el sistema educativo colombiano.'},
-    {tag:'Decreto 1075/2015', text:'<b>Decreto Único Reglamentario del Sector Educación.</b> Compila en un solo cuerpo normativo la reglamentación dispersa del sector: organización del servicio, currículo, evaluación institucional y régimen de personal docente.'},
-    {tag:'Decreto 1290/2009', text:'<b>Evaluación del aprendizaje y promoción.</b> Da autonomía a cada institución para definir su Sistema Institucional de Evaluación de Estudiantes (SIEE), con criterios, escalas y estrategias de apoyo para estudiantes con dificultades.'},
-    {tag:'Decreto 1421/2017', text:'<b>Atención educativa a población con discapacidad.</b> Obliga a los establecimientos a garantizar Planes Individuales de Ajustes Razonables (PIAR) y educación inclusiva dentro del aula regular; es base frecuente de preguntas de juicio situacional.'},
-    {tag:'Ley 1620/2013', text:'<b>Sistema Nacional de Convivencia Escolar.</b> Crea las rutas de atención integral para la convivencia escolar y la prevención del acoso, la violencia escolar y el embarazo adolescente. Da origen a los comités de convivencia institucionales.'},
-    {tag:'Manual de Funciones', text:'Define los requisitos de formación, experiencia y las competencias funcionales y comportamentales exigidas para cada cargo (docente de aula, orientador, coordinador, rector). Es la base de los requisitos de participación en la convocatoria.'},
-    {tag:'CNSC y el SIMO', text:'La Comisión Nacional del Servicio Civil (CNSC) administra el proceso; el Sistema de Apoyo para la Igualdad, el Mérito y la Oportunidad (SIMO) es la plataforma donde se inscriben los aspirantes, se consultan resultados y se elige plaza.'}
+    {tag:'Estado del concurso 2026', text:'<b>Actualización 19 de agosto de 2026:</b> la CNSC publicó los proyectos de acuerdo de convocatoria, el anexo técnico y la OPEC preliminar del proceso docente y directivos docentes 2026 (más de 28.000 vacantes a nivel nacional). Hasta el 25 de agosto de 2026 hay un período de observaciones ciudadanas — los acuerdos aún NO están en firme. Por primera vez se reserva mínimo el 7% de las vacantes para personas con discapacidad (Ley 2418/2024 y Sentencia C-117/2026). Verifica siempre cnsc.gov.co antes de dar por definitivo cualquier porcentaje.'},
+    {tag:'Decreto Ley 1278/2002', text:'<b>Estatuto de Profesionalización Docente.</b> Regula el ingreso, ascenso y retiro del servicio educativo estatal por concurso de méritos. Define el escalafón docente (grados 1 a 3), el período de prueba de 4 meses tras la posesión, y la evaluación anual de desempeño (mínimo 60% para permanecer).'},
+    {tag:'Puntaje mínimo aprobatorio', text:'En el histórico de convocatorias CNSC para docentes de aula, la prueba escrita eliminatoria exige <b>60/100</b> como mínimo aprobatorio; para directivos docentes (rector/coordinador) el mínimo sube a <b>70/100</b>. Esta cifra corresponde al patrón usado en acuerdos CNSC recientes — el valor exacto para la convocatoria 2026 queda formalmente fijado solo cuando el Acuerdo quede en firme (después del 25 de agosto de 2026).'},
+    {tag:'Ley 115/1994', text:'<b>Ley General de Educación.</b> Establece los fines de la educación, la estructura del servicio educativo, el PEI y las áreas obligatorias del currículo, entre ellas Tecnología e Informática.'},
+    {tag:'Decreto 1075/2015', text:'<b>Decreto Único Reglamentario del Sector Educación.</b> Compila la normativa reglamentaria vigente: organización del servicio, currículo, evaluación institucional y régimen de personal docente.'},
+    {tag:'Decreto 1290/2009', text:'<b>Evaluación del aprendizaje y promoción.</b> Da autonomía a cada institución para definir su Sistema Institucional de Evaluación de Estudiantes (SIEE).'},
+    {tag:'Decreto 1421/2017', text:'<b>Atención educativa a población con discapacidad.</b> Obliga a garantizar Planes Individuales de Ajustes Razonables (PIAR) y educación inclusiva.'},
+    {tag:'Ley 1620/2013', text:'<b>Sistema Nacional de Convivencia Escolar.</b> Crea las rutas de atención integral y los comités de convivencia institucionales.'},
+    {tag:'CNSC y el SIMO', text:'La CNSC administra el proceso; el SIMO es la plataforma donde se inscriben los aspirantes. Al inscribirse, el aspirante elige plaza en modalidad <b>Mayoritaria (No Rural)</b> o <b>Rural</b> — esta elección afecta los requisitos, no es solo geográfica.'}
   ],
   questions:[
     q('¿Qué norma establece el Estatuto de Profesionalización Docente bajo el cual se rige este concurso?','Ley 30 de 1992','Decreto Ley 1278 de 2002','Ley 715 de 2001','Decreto 1290 de 2009',1,'El Decreto Ley 1278/2002 es la norma marco del ingreso, ascenso y evaluación de docentes estatales vinculados después de 2002.'),
@@ -175,7 +184,7 @@ const SUBJECTS = [
   ]
 },
 
-{ id:'verbal', num:'01', title:'Aptitud Verbal / Lectura Crítica', meta:'30 preguntas · antónimos, analogías, ordenamiento, comprensión, oraciones incompletas',
+{ id:'verbal', num:'01', title:'Aptitud Verbal / Lectura Crítica', meta:'30 preguntas · antónimos, analogías, ordenamiento, comprensión, oraciones incompletas', type:'oficial',
   chunkSize:10,
   theory:[
     {tag:'Antónimos', text:'Se presenta una palabra y debes hallar la de significado opuesto. Cuidado con las opciones que son sinónimos o palabras de la misma familia semántica — son la trampa más común. Estrategia: primero define mentalmente la palabra, luego busca su "contrario exacto", no una palabra simplemente distinta.'},
@@ -218,7 +227,7 @@ const SUBJECTS = [
   ]
 },
 
-{ id:'numerica', num:'02', title:'Aptitud Numérica / Razonamiento Cuantitativo', meta:'30 preguntas · regla de tres, porcentajes, conteo, proporciones',
+{ id:'numerica', num:'02', title:'Aptitud Numérica / Razonamiento Cuantitativo', meta:'30 preguntas · regla de tres, porcentajes, conteo, proporciones', type:'oficial',
   chunkSize:10,
   theory:[
     {tag:'Regla de 3 simple directa', text:'Cuando dos magnitudes aumentan o disminuyen juntas en la misma proporción (ej. más estudiantes → más guías necesarias). Fórmula: si a→b, entonces c→x, con x = (c×b)/a.'},
@@ -262,7 +271,7 @@ const SUBJECTS = [
   ]
 },
 
-{ id:'psicotecnica', num:'03', title:'Psicotécnica / Competencias Ciudadanas', meta:'30 preguntas · juicio situacional: liderazgo, ética, trabajo en equipo, ciudadanía',
+{ id:'psicotecnica', num:'03', title:'Psicotécnica / Competencias Ciudadanas', meta:'30 preguntas · juicio situacional: liderazgo, ética, trabajo en equipo, ciudadanía', type:'oficial',
   chunkSize:10,
   theory:[
     {tag:'Qué mide', text:'No mide conocimientos teóricos, sino cómo actuarías ante situaciones reales de convivencia, ética profesional, liderazgo y trabajo en equipo. Se presenta como un caso corto con 4 respuestas posibles, todas "razonables" en apariencia.'},
@@ -304,7 +313,7 @@ const SUBJECTS = [
   ]
 },
 
-{ id:'pedagogico', num:'04', title:'Componente Pedagógico', meta:'30 preguntas · didáctica, currículo, evaluación, inclusión',
+{ id:'pedagogico', num:'04', title:'Componente Pedagógico', meta:'30 preguntas · didáctica, currículo, evaluación, inclusión', type:'oficial',
   chunkSize:10,
   theory:[
     {tag:'Peso e importancia', text:'Junto al disciplinar, es uno de los componentes de mayor ponderación en la prueba escrita. Se presenta casi siempre como un caso de aula con varias estrategias didácticas posibles.'},
@@ -347,7 +356,7 @@ const SUBJECTS = [
   ]
 },
 
-{ id:'disciplinar', num:'05', title:'Dominio Disciplinar · Sistemas e Informática', meta:'40 preguntas · técnico + aplicación didáctica',
+{ id:'disciplinar', num:'05', title:'Dominio Disciplinar · Sistemas e Informática', meta:'40 preguntas · técnico + aplicación didáctica', type:'oficial',
   chunkSize:10,
   theory:[
     {tag:'Base curricular', text:'Se ancla en los <b>DBA y Orientaciones de Tecnología e Informática del MEN</b>, organizados en 4 ejes: naturaleza y evolución de la tecnología, apropiación y uso, solución de problemas con tecnología, y tecnología y sociedad.'},
@@ -399,6 +408,32 @@ const SUBJECTS = [
     q('¿Qué diferencia existe entre un sistema operativo de código abierto como Linux y uno privativo como Windows?','Linux permite acceder, modificar y distribuir su código libremente; Windows no','Son exactamente iguales en licenciamiento','Windows es siempre gratuito','Linux nunca puede usarse en computadores personales',0,'El software de código abierto como Linux permite el acceso y modificación libre del código fuente.'),
     q('Al planear una clase de ciberseguridad para grado 9, ¿cuál es el objetivo de aprendizaje más pertinente?','Que memoricen los nombres de todos los tipos de malware','Que reconozcan riesgos comunes (phishing, contraseñas débiles) y apliquen buenas prácticas de protección','Que instalen software de hacking con fines educativos','Que eviten por completo el uso de internet',1,'El objetivo pedagógico central es que los estudiantes reconozcan riesgos y adopten prácticas seguras aplicables a su vida digital.')
   ]
+},
+
+{ id:'ruralidad', num:'06', title:'Ruralidad y Contexto Educativo', meta:'12 preguntas · preparación complementaria (no es un componente oficial con % propio)', type:'complementario',
+  chunkSize:6,
+  theory:[
+    {tag:'Aviso importante', text:'A la fecha, las fuentes oficiales consultadas (CNSC, MEN) <b>no confirman</b> que "Ruralidad" sea un componente independiente de la prueba escrita con una ponderación propia. Lo que sí existe: al inscribirte en SIMO eliges plaza en modalidad <b>Mayoritaria (No Rural)</b> o <b>Rural</b>, con requisitos que pueden variar. Este tema es <b>contenido complementario</b> de preparación —te da herramientas conceptuales que pueden aparecer como contexto en el componente Pedagógico o en Psicotécnica— no una sección aparte del examen.'},
+    {tag:'Modelos Educativos Flexibles (MEF)', text:'Definidos por el MEN como propuestas de educación formal para atender poblaciones que no acceden fácilmente a la oferta tradicional. Incluyen: <b>Escuela Nueva</b> (primaria multigrado), <b>Postprimaria Rural</b> y <b>Educación Media Rural (EMER)</b> (secundaria y media en zonas dispersas), <b>Aceleración del Aprendizaje</b> (extraedad) y <b>Caminar en Secundaria</b>.'},
+    {tag:'Escuela multigrado', text:'Modelo común en zonas rurales donde un solo docente atiende varios grados en la misma aula simultáneamente. Exige planeación diferenciada por niveles y alta capacidad de organización del tiempo y los materiales.'},
+    {tag:'Programa de Educación Rural (PER)', text:'Creado en 2002 por el MEN para cerrar la brecha entre educación rural y urbana, mediante infraestructura, materiales pedagógicos y fortalecimiento de los modelos flexibles.'},
+    {tag:'Brecha digital y conectividad', text:'La desigualdad rural no es solo de acceso a internet: incluye disponibilidad de dispositivos, conectividad estable y formación docente en uso pedagógico de las TIC. Resolverla requiere una intervención multidimensional, no solo la entrega de equipos.'},
+    {tag:'Permanencia escolar', text:'El Programa de Alimentación Escolar (PAE) y el transporte escolar son estrategias clave del MEN para sostener la asistencia y reducir la deserción en zonas rurales, donde factores económicos y de distancia pesan más que en lo urbano.'}
+  ],
+  questions:[
+    q('¿Qué caracteriza principalmente a la escuela multigrado?','Varios docentes enseñan un solo grado','Un solo docente atiende varios grados simultáneamente en la misma aula','Solo existe en zonas urbanas','No requiere planeación diferenciada',1,'La escuela multigrado, común en zonas rurales dispersas, tiene un docente atendiendo distintos niveles a la vez.'),
+    q('¿Cuál de los siguientes es un Modelo Educativo Flexible (MEF) del MEN orientado a primaria multigrado?','Escuela Nueva','Aceleración del Aprendizaje','Caminar en Secundaria','Educación Media Rural (EMER)',0,'Escuela Nueva es el MEF histórico orientado a la primaria multigrado en zonas rurales.'),
+    q('¿Qué población busca atender específicamente el modelo "Aceleración del Aprendizaje"?','Estudiantes de media técnica urbana','Estudiantes en extraedad con rezago escolar','Docentes en formación continua','Directivos docentes rurales',1,'Aceleración del Aprendizaje está dirigido a niños y adolescentes en extraedad, para nivelar su proceso escolar.'),
+    q('El Programa de Educación Rural (PER) del MEN, creado en 2002, tiene como propósito principal:','Eliminar la educación rural','Cerrar la brecha entre la educación rural y urbana mediante infraestructura y modelos flexibles','Centralizar toda la educación en las capitales','Sustituir a los docentes rurales por educación virtual',1,'El PER busca cerrar la brecha rural-urbana fortaleciendo infraestructura, materiales y modelos educativos flexibles.'),
+    q('Según fuentes del MEN, la brecha digital en zonas rurales debe entenderse principalmente como:','Solo un problema de falta de internet','Un problema multidimensional: acceso, dispositivos, conectividad y formación docente','Un problema exclusivo de los estudiantes','Un problema ya resuelto en Colombia',1,'La brecha digital rural combina varios factores, no solo la conectividad; resolverla exige una intervención integral.'),
+    q('¿Qué estrategia del MEN está orientada principalmente a sostener la asistencia escolar y reducir la deserción en zonas rurales?','El Programa de Alimentación Escolar (PAE) y el transporte escolar','La eliminación de la jornada única','La reducción del calendario académico','La suspensión de las pruebas Saber',0,'El PAE y el transporte escolar atienden factores económicos y de distancia que inciden fuertemente en la deserción rural.'),
+    q('Un docente llega a una escuela rural donde debe enseñar simultáneamente a estudiantes de grados 3°, 4° y 5° en la misma aula. ¿Cuál es la estrategia más coherente con el modelo Escuela Nueva?','Enseñar solo al grado con más estudiantes e ignorar a los demás','Usar guías de aprendizaje autoguiado que permitan a cada grupo avanzar a su ritmo mientras el docente circula entre ellos','Suspender las clases de los grados con menos estudiantes','Exigir que todos los grados vean exactamente el mismo contenido al mismo tiempo',1,'Escuela Nueva se apoya en guías autoguiadas y trabajo por niveles para que el docente pueda atender varios grados a la vez.'),
+    q('¿Cuál es la diferencia principal entre la modalidad de inscripción "Rural" y "Mayoritaria (No Rural)" en el concurso docente CNSC?','No existe ninguna diferencia real','Pueden variar los requisitos según la vacante (ej. exigencias de experiencia para directivos en algunas convocatorias rurales)','La modalidad Rural nunca tiene pruebas escritas','Solo se puede elegir una modalidad si se vive en zona rural',1,'Según el histórico de convocatorias CNSC, las plazas rurales pueden tener requisitos distintos a las no rurales, definidos en cada Acuerdo específico.'),
+    q('Postprimaria Rural y Educación Media Rural (EMER) están orientados principalmente a:','Preescolar en zonas urbanas','Secundaria y media en zonas rurales dispersas','Formación exclusiva de directivos docentes','Educación superior a distancia',1,'Ambos modelos flexibles del MEN extienden la oferta de secundaria y media a zonas rurales con baja densidad poblacional.'),
+    q('Un estudiante de una vereda debe caminar más de dos horas para llegar a la escuela, lo que afecta su asistencia. Desde la política pública, ¿qué respuesta es más pertinente?','Ignorar la situación porque es responsabilidad exclusiva de la familia','Articular estrategias de transporte escolar y, si aplica, modelos flexibles que reduzcan la barrera de acceso','Exigir siempre asistencia presencial sin ningún ajuste','Recomendar que el estudiante abandone sus estudios',1,'El transporte escolar y los modelos flexibles son las respuestas de política pública frente a barreras de acceso geográfico.'),
+    q('¿Qué elemento distingue conceptualmente a "contenido complementario" de "información oficial" dentro de este entrenador?','No hay ninguna diferencia','El contenido complementario prepara conceptualmente al aspirante, pero no es una regla oficial del concurso con ponderación propia','El contenido complementario siempre vale más puntos','La información oficial nunca cambia',1,'Es clave distinguir entre lo normativamente confirmado (con fuente oficial) y el material de preparación que da contexto pero no es, por sí mismo, una regla del examen.'),
+    q('Al preparar una clase de tecnología para una escuela rural con conectividad limitada, ¿cuál es la estrategia más razonable?','Exigir siempre actividades 100% en línea sin alternativa','Diseñar actividades que combinen recursos offline y, cuando haya conectividad, complementen con recursos digitales','Cancelar el área de tecnología en esa escuela','Enseñar solo teoría sin ninguna práctica',1,'Ante conectividad limitada, la planeación debe adaptarse combinando recursos offline con digitales cuando estén disponibles, sin abandonar el área.')
+  ]
 }
 
 ];
@@ -437,9 +472,33 @@ function blockKey(subjectId, i){ return subjectId+'-b'+i; }
 function isSubjectDone(s){
   return s.blocks.every((b,i)=> progress[blockKey(s.id,i)] && progress[blockKey(s.id,i)].done);
 }
-function isSubjectUnlocked(index){
-  if(index===0) return true;
-  return isSubjectDone(SUBJECTS[index-1]);
+// Navegación libre: todo queda accesible siempre. Ya no se bloquea por no
+// haber terminado el tema anterior — en su lugar, recomendamos el orden.
+function isSubjectUnlocked(index){ return true; }
+
+function subjectMastery(s){
+  const scores = s.blocks.map((b,i)=>progress[blockKey(s.id,i)]).filter(Boolean).map(p=>p.bestScore);
+  if(scores.length===0) return null;
+  return Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+}
+function masteryBand(pct){
+  if(pct===null) return {emoji:'⚪', label:'Sin empezar', cls:'band-none'};
+  if(pct<60) return {emoji:'🔴', label:'Insuficiente', cls:'band-red'};
+  if(pct<70) return {emoji:'🟠', label:'Supera el mínimo, bajo', cls:'band-orange'};
+  if(pct<80) return {emoji:'🟡', label:'En desarrollo', cls:'band-yellow'};
+  if(pct<90) return {emoji:'🟢', label:'Zona objetivo', cls:'band-green'};
+  return {emoji:'🔵', label:'Excelente', cls:'band-blue'};
+}
+function recommendedSubject(){
+  // Prioriza el tema con menor dominio entre los que ya se intentaron;
+  // si ninguno se ha intentado, recomienda el primero de la lista.
+  let attempted = SUBJECTS.map(s=>({s, m:subjectMastery(s)})).filter(x=>x.m!==null);
+  if(attempted.length===0) return SUBJECTS[0];
+  attempted.sort((a,b)=>a.m-b.m);
+  const weakest = attempted[0];
+  if(weakest.m<80) return weakest.s;
+  const notStarted = SUBJECTS.find(s=>subjectMastery(s)===null);
+  return notStarted || null;
 }
 function totalBlocks(){ return SUBJECTS.reduce((sum,s)=>sum+s.blocks.length,0); }
 function doneBlocks(){
@@ -454,31 +513,43 @@ function renderDashboard(){
   const list = document.getElementById('subjectList');
   list.innerHTML = '';
 
+  const rec = recommendedSubject();
+  if(rec){
+    const recBox = document.createElement('div');
+    recBox.className = 'recommend-box';
+    const m = subjectMastery(rec);
+    recBox.innerHTML = m===null
+      ? `<b>Siguiente recomendado:</b> ${rec.title} — todavía no lo has empezado.`
+      : `<b>Prioridad de refuerzo:</b> ${rec.title} (${m}% de dominio) — es tu punto más débil ahora mismo.`;
+    list.appendChild(recBox);
+  }
+
   SUBJECTS.forEach((s, idx)=>{
     const unlocked = isSubjectUnlocked(idx);
     const done = isSubjectDone(s);
     const blocksDoneCount = s.blocks.filter((b,i)=>progress[blockKey(s.id,i)]&&progress[blockKey(s.id,i)].done).length;
+    const mastery = subjectMastery(s);
+    const band = masteryBand(mastery);
 
     const card = document.createElement('div');
-    card.className = 'subject-card' + (unlocked?'':' locked') + (done?' done':'') + (openSubjectId===s.id?' open':'');
+    card.className = 'subject-card' + (done?' done':'') + (openSubjectId===s.id?' open':'');
 
-    let statusHtml;
-    if(!unlocked) statusHtml = '<span class="subject-status status-locked">BLOQUEADO</span>';
-    else if(done) statusHtml = '<span class="subject-status status-done">COMPLETO</span>';
-    else statusHtml = `<span class="subject-status status-progress">${blocksDoneCount}/${s.blocks.length} BLOQUES</span>`;
+    let statusHtml = mastery===null
+      ? `<span class="subject-status status-progress">${blocksDoneCount}/${s.blocks.length} BLOQUES</span>`
+      : `<span class="subject-status ${band.cls}">${band.emoji} ${mastery}% · ${band.label.toUpperCase()}</span>`;
 
     const head = document.createElement('div');
-    head.className = 'subject-head' + (unlocked?'':' locked');
+    head.className = 'subject-head';
     head.innerHTML = `
       <div class="subject-num">${s.num}</div>
       <div class="subject-body">
-        <p class="subject-title">${s.title}</p>
+        <p class="subject-title">${s.title} ${s.type==='complementario'?'<span class="type-tag">CONTENIDO COMPLEMENTARIO</span>':''}</p>
         <p class="subject-meta">${s.meta}</p>
       </div>
       ${statusHtml}
       <span class="chevron">▶</span>
     `;
-    head.onclick = ()=>{ if(unlocked){ openSubjectId = (openSubjectId===s.id)?null:s.id; renderDashboard(); } };
+    head.onclick = ()=>{ openSubjectId = (openSubjectId===s.id)?null:s.id; renderDashboard(); };
     card.appendChild(head);
 
     const panel = document.createElement('div');
@@ -489,7 +560,7 @@ function renderDashboard(){
       return `<button class="block-chip ${bd?'done':''}" onclick="startBlock('${s.id}',${i})">
         <span class="block-num">Bloque ${i+1} · ${b.length} preg.</span>
         <span class="block-title">${bd?'Completado':'Comenzar'}</span>
-        ${bd?`<span class="block-score">${st.bestScore}%</span>`:''}
+        ${bd?`<span class="block-score">${st.bestScore}%${st.attempts?` · ${st.attempts} intento(s)`:''}</span>`:''}
       </button>`;
     }).join('');
     const theoryHtml = s.theory.map(a=>`
@@ -598,19 +669,34 @@ function nextQuestion(){
 
 async function finishBlock(){
   const pct = Math.round((currentScore/currentQuestions.length)*100);
-  const passed = pct >= 60;
+  const passed = pct >= 60; // mínimo de referencia oficial CNSC para docente de aula (prueba eliminatoria)
   const key = blockKey(currentSubject.id, currentBlockIndex);
-  const prevBest = (progress[key] && progress[key].bestScore) || 0;
-  progress[key] = { done: passed || (progress[key] && progress[key].done), bestScore: Math.max(prevBest, pct) };
+  const prev = progress[key] || {};
+  const prevBest = prev.bestScore || 0;
+  progress[key] = {
+    done: passed || prev.done,
+    bestScore: Math.max(prevBest, pct),
+    attempts: (prev.attempts||0) + 1,
+    lastScore: pct,
+    totalAnswered: (prev.totalAnswered||0) + currentQuestions.length,
+    totalCorrect: (prev.totalCorrect||0) + currentScore,
+    lastAttempt: new Date().toISOString()
+  };
   await saveProgress();
+
+  const band = masteryBand(pct);
+  let msg;
+  if(pct<60) msg = `${band.emoji} Por debajo del mínimo de referencia (60/100). Repasa la teoría del tema y vuelve a intentarlo.`;
+  else if(pct<70) msg = `${band.emoji} Superaste el mínimo de referencia, pero todavía estás por debajo de la meta de preparación (80-90).`;
+  else if(pct<80) msg = `${band.emoji} Buen progreso. Estás cerca de la zona objetivo. Te faltan ${80-pct} puntos para llegar a 80.`;
+  else if(pct<90) msg = `${band.emoji} Zona objetivo alcanzada (meta de preparación 80-90).`;
+  else msg = `${band.emoji} Nivel excelente.`;
 
   document.getElementById('quizView').classList.add('hidden');
   document.getElementById('resultView').classList.remove('hidden');
   document.getElementById('resultModuleName').textContent = `${currentSubject.title.toUpperCase()} · BLOQUE ${currentBlockIndex+1}`;
   document.getElementById('resultScore').textContent = pct+'%';
-  document.getElementById('resultMsg').textContent = passed
-    ? 'Bloque superado. Puedes seguir con el siguiente bloque cuando quieras — no hay prisa.'
-    : 'Necesitas 60% o más para marcar el bloque como superado. Repítelo cuando quieras, sin límite de intentos.';
+  document.getElementById('resultMsg').textContent = msg;
   openSubjectId = currentSubject.id;
   window.scrollTo(0,0);
 }
