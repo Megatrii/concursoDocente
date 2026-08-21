@@ -45,6 +45,11 @@
   .band-green{background:#DCE9DF;color:#3D6B4F;}
   .band-blue{background:#D8E3F0;color:#2C4A6E;}
   .recommend-box{background:#1B2A41;color:#fff;padding:14px 18px;margin-bottom:16px;font-size:13.5px;border-left:5px solid var(--gold);}
+  .simulacro-card{border-left-color:var(--gold);}
+  .breakdown-box{margin:18px 0;text-align:left;background:rgba(255,255,255,.06);padding:14px 18px;border-radius:2px;}
+  .breakdown-row{display:flex;justify-content:space-between;padding:7px 0;font-size:13.5px;border-bottom:1px solid rgba(255,255,255,.1);}
+  .breakdown-row:last-child{border-bottom:none;}
+  .breakdown-row span:last-child{font-family:'IBM Plex Mono',monospace;padding:2px 8px;border-radius:2px;}
   .type-tag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--brick);border:1px solid var(--brick);padding:1px 6px;border-radius:2px;margin-left:8px;vertical-align:middle;}
   .chevron{font-size:12px;color:var(--ink-soft);transition:transform .2s;}
   .subject-card.open .chevron{transform:rotate(90deg);}
@@ -139,8 +144,9 @@
       <div class="result-label" id="resultModuleName">BLOQUE</div>
       <p class="result-score" id="resultScore">0%</p>
       <p class="result-msg" id="resultMsg"></p>
+      <div id="resultBreakdown"></div>
       <div class="result-actions">
-        <button onclick="retryQuiz()">Repetir bloque</button>
+        <button id="retryBtn" onclick="retryQuiz()">Repetir bloque</button>
         <button class="secondary" onclick="showDashboard()">Volver al expediente</button>
       </div>
     </div>
@@ -158,15 +164,15 @@ const SUBJECTS = [
 { id:'legal', num:'00', title:'Marco Legal y Normativo', meta:'12 preguntas · fundamento jurídico del concurso', type:'oficial',
   chunkSize:6,
   theory:[
-    {tag:'Estado del concurso 2026', text:'<b>Actualización 19 de agosto de 2026:</b> la CNSC publicó los proyectos de acuerdo de convocatoria, el anexo técnico y la OPEC preliminar del proceso docente y directivos docentes 2026 (más de 28.000 vacantes a nivel nacional). Hasta el 25 de agosto de 2026 hay un período de observaciones ciudadanas — los acuerdos aún NO están en firme. Por primera vez se reserva mínimo el 7% de las vacantes para personas con discapacidad (Ley 2418/2024 y Sentencia C-117/2026). Verifica siempre cnsc.gov.co antes de dar por definitivo cualquier porcentaje.'},
-    {tag:'Decreto Ley 1278/2002', text:'<b>Estatuto de Profesionalización Docente.</b> Regula el ingreso, ascenso y retiro del servicio educativo estatal por concurso de méritos. Define el escalafón docente (grados 1 a 3), el período de prueba de 4 meses tras la posesión, y la evaluación anual de desempeño (mínimo 60% para permanecer).'},
-    {tag:'Puntaje mínimo aprobatorio', text:'En el histórico de convocatorias CNSC para docentes de aula, la prueba escrita eliminatoria exige <b>60/100</b> como mínimo aprobatorio; para directivos docentes (rector/coordinador) el mínimo sube a <b>70/100</b>. Esta cifra corresponde al patrón usado en acuerdos CNSC recientes — el valor exacto para la convocatoria 2026 queda formalmente fijado solo cuando el Acuerdo quede en firme (después del 25 de agosto de 2026).'},
-    {tag:'Ley 115/1994', text:'<b>Ley General de Educación.</b> Establece los fines de la educación, la estructura del servicio educativo, el PEI y las áreas obligatorias del currículo, entre ellas Tecnología e Informática.'},
-    {tag:'Decreto 1075/2015', text:'<b>Decreto Único Reglamentario del Sector Educación.</b> Compila la normativa reglamentaria vigente: organización del servicio, currículo, evaluación institucional y régimen de personal docente.'},
-    {tag:'Decreto 1290/2009', text:'<b>Evaluación del aprendizaje y promoción.</b> Da autonomía a cada institución para definir su Sistema Institucional de Evaluación de Estudiantes (SIEE).'},
-    {tag:'Decreto 1421/2017', text:'<b>Atención educativa a población con discapacidad.</b> Obliga a garantizar Planes Individuales de Ajustes Razonables (PIAR) y educación inclusiva.'},
-    {tag:'Ley 1620/2013', text:'<b>Sistema Nacional de Convivencia Escolar.</b> Crea las rutas de atención integral y los comités de convivencia institucionales.'},
-    {tag:'CNSC y el SIMO', text:'La CNSC administra el proceso; el SIMO es la plataforma donde se inscriben los aspirantes. Al inscribirse, el aspirante elige plaza en modalidad <b>Mayoritaria (No Rural)</b> o <b>Rural</b> — esta elección afecta los requisitos, no es solo geográfica.'}
+    {tag:'Estado del concurso 2026', text:'<b>Actualización 19 de agosto de 2026:</b> la CNSC publicó los proyectos de acuerdo de convocatoria, el anexo técnico y la Oferta Pública de Empleos de Carrera (OPEC) preliminar del proceso docente y directivos docentes 2026, con más de 28.000 vacantes a nivel nacional. Hasta el 25 de agosto de 2026 corre el período de observaciones ciudadanas: cualquier persona puede revisar el proyecto y presentar comentarios antes de que quede en firme. Esto significa que, técnicamente, los acuerdos todavía pueden ajustarse. Por primera vez en la historia de estos concursos, se reserva un mínimo del 7% de las vacantes para personas con discapacidad, en cumplimiento de la Ley 2418 de 2024 y la Sentencia C-117 de 2026 de la Corte Constitucional. Recomendación práctica: crea un recordatorio para revisar cnsc.gov.co la última semana de agosto y confirmar que el Acuerdo ya quedó en firme antes de dar por definitivo cualquier detalle de fechas o vacantes.'},
+    {tag:'Decreto Ley 1278/2002 — Estatuto Docente', text:'Es la norma más importante de todo el concurso: regula el ingreso, ascenso y retiro del servicio educativo estatal exclusivamente por concurso de méritos (antes existía el Decreto 2277/1979, hoy solo aplica a docentes vinculados antes de 2002). Organiza el escalafón docente en <b>tres grados (1, 2 y 3)</b>, cada uno subdividido en cuatro niveles salariales (A, B, C, D) según formación académica y evaluaciones superadas. Tras ganar el concurso y ser nombrado en período de prueba, el docente tiene <b>4 meses de servicio efectivo</b> para demostrar su idoneidad; al final de ese período se aplica una evaluación cuyo resultado determina si se confirma el nombramiento. Ya en ejercicio, cada docente debe superar anualmente la <b>Evaluación Anual de Desempeño Laboral</b> con mínimo 60%, y puede presentarse voluntariamente a la <b>Evaluación de Carácter Diagnóstico Formativo (ECDF)</b> para ascender de grado o reubicarse de nivel salarial (este es un proceso distinto al concurso de ingreso, no lo confundas).'},
+    {tag:'Puntaje mínimo aprobatorio', text:'En el histórico de convocatorias CNSC para docentes de aula, la prueba escrita eliminatoria exige <b>60 sobre 100</b> como mínimo aprobatorio; para directivos docentes (rector o coordinador) el mínimo sube a <b>70 sobre 100</b>, porque su prueba incluye componentes de gestión adicionales. Quien no alcanza el mínimo queda eliminado del proceso, sin importar qué tan bien le haya ido en otros componentes. Este patrón se repite en convocatorias anteriores de la CNSC (no solo docentes), así que es razonable esperarlo también en 2026 — pero el valor exacto solo queda jurídicamente en firme cuando se publica la versión definitiva del Acuerdo, después del 25 de agosto de 2026.'},
+    {tag:'Ley 115/1994 — Ley General de Educación', text:'Es la ley marco de todo el sistema educativo colombiano, vigente desde hace más de 30 años. Define los fines de la educación (formación integral, respeto a la vida, participación democrática, entre otros), organiza el servicio educativo en niveles (preescolar, básica primaria, básica secundaria y media), y establece que cada institución debe construir su propio <b>Proyecto Educativo Institucional (PEI)</b>. Fija además las <b>áreas obligatorias y fundamentales</b> del currículo nacional —entre ellas Tecnología e Informática—, que ningún colegio puede omitir de su plan de estudios.'},
+    {tag:'Decreto 1075/2015 — Decreto Único Reglamentario', text:'Antes de este decreto, la reglamentación del sector educativo estaba dispersa en cientos de decretos individuales, difíciles de rastrear. El Decreto 1075/2015 los compiló en un solo cuerpo normativo organizado por libros y títulos, cubriendo desde la organización del servicio educativo hasta el régimen de personal docente y directivo. En la práctica, cuando alguien menciona "el decreto único de educación", se refiere a este.'},
+    {tag:'Decreto 1290/2009 — Evaluación del aprendizaje', text:'Le da a cada institución educativa autonomía para construir su propio <b>Sistema Institucional de Evaluación de Estudiantes (SIEE)</b>, definiendo allí los criterios de evaluación, las escalas de calificación y las estrategias de apoyo para estudiantes con dificultades de aprendizaje. Esto significa que la escala numérica (por ejemplo, de 1.0 a 5.0) y los criterios específicos pueden variar de un colegio a otro, siempre dentro del marco general de este decreto.'},
+    {tag:'Decreto 1421/2017 — Educación inclusiva', text:'Reglamenta la atención educativa a estudiantes con discapacidad dentro del sistema educativo regular (no en instituciones separadas). Obliga a cada colegio a construir, junto con la familia y un equipo interdisciplinario, un <b>Plan Individual de Ajustes Razonables (PIAR)</b> para cada estudiante que lo requiera. Es una de las normas más citadas en preguntas de juicio situacional del componente pedagógico y psicotécnico, porque plantea con frecuencia el dilema entre exigencia académica y ajustes razonables.'},
+    {tag:'Ley 1620/2013 — Convivencia escolar', text:'Crea el <b>Sistema Nacional de Convivencia Escolar</b> y sus rutas de atención integral, con el propósito de fomentar la formación ciudadana y prevenir situaciones como el acoso escolar (bullying), la violencia escolar y el embarazo adolescente. Obliga a cada institución a conformar un <b>Comité Escolar de Convivencia</b>. Junto con el Decreto 1965/2013 que la reglamenta, es la base normativa de casi todas las preguntas de convivencia en el componente psicotécnico.'},
+    {tag:'CNSC, SIMO y modalidades de inscripción', text:'La <b>Comisión Nacional del Servicio Civil (CNSC)</b> es el organismo constitucional autónomo encargado de administrar los concursos de mérito para el ingreso a la función pública, incluida la docencia estatal. El <b>SIMO</b> (Sistema de Apoyo para la Igualdad, el Mérito y la Oportunidad) es la plataforma digital donde el aspirante se inscribe, paga los derechos de participación, consulta resultados y, al final del proceso, elige la vacante concreta que va a ocupar según su puntaje. Al inscribirse, cada aspirante elige la modalidad <b>Mayoritaria (No Rural)</b> o <b>Rural</b> — esta elección puede implicar requisitos distintos según el Acuerdo específico, no es una simple etiqueta geográfica.'}
   ],
   questions:[
     q('¿Qué norma establece el Estatuto de Profesionalización Docente bajo el cual se rige este concurso?','Ley 30 de 1992','Decreto Ley 1278 de 2002','Ley 715 de 2001','Decreto 1290 de 2009',1,'El Decreto Ley 1278/2002 es la norma marco del ingreso, ascenso y evaluación de docentes estatales vinculados después de 2002.'),
@@ -187,11 +193,11 @@ const SUBJECTS = [
 { id:'verbal', num:'01', title:'Aptitud Verbal / Lectura Crítica', meta:'30 preguntas · antónimos, analogías, ordenamiento, comprensión, oraciones incompletas', type:'oficial',
   chunkSize:10,
   theory:[
-    {tag:'Antónimos', text:'Se presenta una palabra y debes hallar la de significado opuesto. Cuidado con las opciones que son sinónimos o palabras de la misma familia semántica — son la trampa más común. Estrategia: primero define mentalmente la palabra, luego busca su "contrario exacto", no una palabra simplemente distinta.'},
-    {tag:'Analogías', text:'Se da un par de palabras (A : B) y debes hallar otro par con la <b>misma relación lógica</b> — no el mismo tema. Relaciones típicas: lugar/persona que lo ocupa, herramienta/función, causa/efecto, todo/parte, sinónimos o antónimos entre sí. Primero nombra la relación en palabras ("A es el lugar donde trabaja B"), luego busca el par que cumpla exactamente esa misma relación.'},
-    {tag:'Ordenamiento', text:'Debes reconstruir una oración o un párrafo corto a partir de fragmentos desordenados. Busca primero el sujeto o conector inicial (a menudo un artículo o adverbio como "primero"/"luego"), y sigue la lógica gramatical y temporal del texto.'},
-    {tag:'Oraciones incompletas', text:'Debes completar una oración con la combinación de palabras que mantenga coherencia gramatical y de sentido. Todas las opciones suenan parecidas; la clave está en que las palabras no se contradigan entre sí dentro de la misma oración (ej. "responsable" no puede combinarse lógicamente con "improvisación").'},
-    {tag:'Comprensión de lectura', text:'Preguntas ancladas en un texto corto. Estrategia: lee primero la pregunta, luego el texto, así sabes qué buscar. Distingue entre lo que el texto <b>afirma literalmente</b> y lo que tú sabes del tema por fuera del texto — la respuesta correcta siempre está sustentada solo en lo escrito. Las opciones "casi correctas" suelen agregar información que el texto no dice.'}
+    {tag:'Antónimos — cómo se resuelven', text:'Se presenta una palabra y debes hallar la de significado opuesto entre 4 opciones. La trampa más frecuente es incluir un sinónimo o una palabra de la misma familia semántica junto a la respuesta correcta, para confundirte si vas leyendo rápido. <b>Ejemplo resuelto:</b> ANTÓNIMO de PARCO → opciones: locuaz, callado, sobrio, mesurado. "Parco" significa "de pocas palabras". Callado, sobrio y mesurado son casi sinónimos de parco (la trampa); la única palabra realmente opuesta es "locuaz" (que habla mucho). Estrategia: primero define mentalmente la palabra dada con tus propias palabras, luego busca el "contrario exacto" de esa definición, no una palabra simplemente distinta o relacionada.'},
+    {tag:'Analogías — cómo se resuelven', text:'Se da un par de palabras (A : B) y debes hallar otro par con la <b>misma relación lógica</b> entre sus términos — no el mismo tema ni la misma categoría. Relaciones típicas que aparecen: lugar/persona que lo ocupa (aula:estudiantes), herramienta/función (lápiz:escribir), profesión/lugar de trabajo (médico:hospital), causa/efecto (sembrar:cosechar), todo/parte (libro:capítulo), o antónimos entre sí (timidez:audacia). <b>Ejemplo resuelto:</b> MÉDICO : HOSPITAL — la relación es "profesión : lugar donde ejerce". Buscas un par que cumpla EXACTAMENTE esa relación: docente:colegio la cumple; alumno:libro no (un libro no es un lugar de trabajo). Método: primero nombra la relación en una frase completa ("A es el lugar donde trabaja B" o "A es la herramienta con la que se hace B"), y solo después revisa cuál opción cumple esa frase, palabra por palabra.'},
+    {tag:'Ordenamiento — cómo se resuelve', text:'Debes reconstruir una oración o un párrafo corto a partir de fragmentos numerados y desordenados. Pistas para encontrar el punto de partida: busca el artículo o sujeto inicial (el, la, un docente...), los conectores temporales ("primero", "luego", "finalmente", "sin embargo") que marcan secuencia, y la coherencia gramatical (un verbo conjugado normalmente sigue al sujeto, no lo antecede). En párrafos de varias oraciones, identifica cuál idea es la causa y cuál la consecuencia — la causa casi siempre va primero.'},
+    {tag:'Oraciones incompletas — cómo se resuelven', text:'Debes completar una oración con la combinación de palabras (generalmente 2 o 3 espacios en blanco) que mantenga coherencia gramatical y de sentido con el resto del texto. Todas las opciones suenan parecidas a primera vista; la clave está en que ninguna palabra elegida puede contradecir el sentido general de la oración. <b>Ejemplo resuelto:</b> "El uso ___ de la tecnología requiere ___ previa" — si una opción dice "excesivo - improvisación", se contradice: un uso excesivo no suele ir de la mano de planeación previa. La opción coherente es "responsable - planeación", porque ambas palabras apuntan en la misma dirección de sentido.'},
+    {tag:'Comprensión de lectura — cómo se resuelve', text:'Son preguntas ancladas en un texto corto (una noticia, un fragmento normativo o un párrafo argumentativo). Estrategia clave: lee primero la pregunta, luego el texto — así sabes exactamente qué buscar y no pierdes tiempo releyendo. Distingue siempre entre lo que el texto <b>afirma literalmente</b> y lo que tú sabes del tema por fuera del texto: la respuesta correcta debe estar sustentada solo en lo escrito, nunca en tu conocimiento previo del tema. Las opciones incorrectas más frecuentes son las que "casi dicen lo mismo" pero agregan un matiz que el texto no menciona (por ejemplo, convertir "puede mejorar" en "siempre mejora"), o que invierten una relación causa-efecto que el texto plantea al revés.'}
   ],
   questions:[
     q('ANTÓNIMO de PERSPICAZ','torpe','agudo','sagaz','listo',0,'Perspicaz significa agudo o perceptivo; su opuesto directo es "torpe".'),
@@ -230,12 +236,12 @@ const SUBJECTS = [
 { id:'numerica', num:'02', title:'Aptitud Numérica / Razonamiento Cuantitativo', meta:'30 preguntas · regla de tres, porcentajes, conteo, proporciones', type:'oficial',
   chunkSize:10,
   theory:[
-    {tag:'Regla de 3 simple directa', text:'Cuando dos magnitudes aumentan o disminuyen juntas en la misma proporción (ej. más estudiantes → más guías necesarias). Fórmula: si a→b, entonces c→x, con x = (c×b)/a.'},
-    {tag:'Regla de 3 simple inversa', text:'Cuando una magnitud aumenta mientras la otra disminuye (ej. más trabajadores → menos tiempo necesario). Fórmula: x = (a×b)/c. La trampa más común del examen es aplicar la fórmula directa cuando en realidad la relación es inversa — siempre pregúntate: "si una magnitud sube, ¿la otra sube o baja?".'},
-    {tag:'Porcentajes', text:'Para calcular el % de un valor: (porcentaje/100) × valor total. Para calcular variación porcentual: (diferencia / valor inicial) × 100. Ojo: el "100%" de referencia cambia según la pregunta — identifícalo siempre antes de operar.'},
-    {tag:'Conteo y permutaciones', text:'Cuando se pregunta de cuántas formas se pueden organizar u ordenar n elementos distintos, se usa el factorial: n! = n×(n-1)×(n-2)×...×1.'},
-    {tag:'Promedios', text:'Promedio = suma de todos los valores ÷ número de valores. Para recalcular un promedio al quitar o agregar un dato, primero reconstruye la suma total (promedio × cantidad de datos), ajústala, y vuelve a dividir.'},
-    {tag:'Trabajo combinado', text:'Cuando varias personas o equipos hacen una tarea juntos, el "trabajo total" se mantiene constante: (número de trabajadores) × (tiempo) = constante. Si cambia el número de trabajadores, el tiempo cambia de forma inversamente proporcional — salvo que el trabajo sea independiente y simultáneo (ej. instalar software en varios computadores a la vez), donde el tiempo no cambia.'}
+    {tag:'Regla de 3 simple directa', text:'Se usa cuando dos magnitudes suben o bajan juntas, en la misma dirección (ej. más estudiantes → más guías necesarias; a doble de estudiantes, doble de guías). Fórmula: si a→b, entonces c→x, con <b>x = (c×b)/a</b>. <b>Ejemplo resuelto:</b> "Si 5 computadores cuestan $10.000.000, ¿cuánto cuestan 8?" → x = (8×10.000.000)/5 = $16.000.000. Pista para reconocerla: si al aumentar una cantidad la otra también debería aumentar de forma lógica, es directa.'},
+    {tag:'Regla de 3 simple inversa', text:'Se usa cuando una magnitud sube mientras la otra baja (ej. más trabajadores → menos tiempo necesario para la misma tarea). Fórmula: <b>x = (a×b)/c</b>. <b>Ejemplo resuelto:</b> "3 docentes califican 90 exámenes en 6 horas; ¿cuánto tardarían 2 docentes?" → primero halla el "trabajo total": 3×6=18 (docentes-hora). Con 2 docentes: 18÷2=9 horas. La trampa más común del examen es aplicar la fórmula directa cuando en realidad la relación es inversa — antes de operar, siempre pregúntate: "si una magnitud sube, ¿la otra sube o baja para lograr el mismo resultado?". Si baja, es inversa.'},
+    {tag:'Porcentajes', text:'Para calcular el % de un valor: <b>(porcentaje/100) × valor total</b>. Ejemplo: 35% de 40 = (35/100)×40 = 14. Para calcular una <b>variación porcentual</b> (cuánto subió o bajó algo en términos relativos): <b>(diferencia / valor inicial) × 100</b>. Ejemplo: un promedio sube de 3.2 a 4.0 → diferencia=0.8, (0.8/3.2)×100=25% de mejora. Ojo con el "100% de referencia": en preguntas de dos pasos (ej. "40% aprueba de primera, y de los que no, el 50% aprueba después"), el segundo porcentaje se calcula sobre el grupo que queda, NO sobre el total original — identifica siempre sobre qué cantidad se aplica cada porcentaje antes de operar.'},
+    {tag:'Conteo y permutaciones', text:'Cuando preguntan de cuántas formas distintas se pueden organizar u ordenar n elementos diferentes (por ejemplo, 4 estudiantes en fila), se usa el factorial: <b>n! = n×(n-1)×(n-2)×...×1</b>. Ejemplo: 4 estudiantes en fila → 4! = 4×3×2×1 = 24 formas distintas. Si el problema pide elegir solo algunos de un grupo mayor (no organizar a todos), el cálculo cambia — pero en el nivel de este examen, casi siempre se trata de organizar la totalidad de un grupo pequeño, así que el factorial simple resuelve la mayoría de casos.'},
+    {tag:'Promedios', text:'Promedio = <b>suma de todos los valores ÷ número de valores</b>. La pregunta más frecuente en el examen no pide calcular un promedio desde cero, sino <b>recalcularlo</b> al quitar o agregar un dato. Método: primero reconstruye la suma total (promedio × cantidad de datos), luego ajusta esa suma sumando o restando el nuevo valor, y finalmente vuelve a dividir entre la nueva cantidad de datos. <b>Ejemplo resuelto:</b> "El promedio de 25 estudiantes es 3.6; se retira uno con nota 2.0. ¿Nuevo promedio?" → suma total = 25×3.6=90; nueva suma=90-2=88; nuevo promedio=88÷24≈3.67 (ojo: ahora se divide entre 24, no entre 25).'},
+    {tag:'Trabajo combinado', text:'Cuando varias personas o equipos hacen una tarea juntos, el "trabajo total" (medido en trabajador×tiempo) se mantiene constante para una misma tarea: <b>(número de trabajadores) × (tiempo) = constante</b>. Si cambia el número de trabajadores, el tiempo cambia de forma inversamente proporcional (más trabajadores, menos tiempo). La excepción importante: cuando el trabajo es <b>independiente y simultáneo</b> —por ejemplo, instalar el mismo software en varios computadores a la vez, cada uno por su cuenta— el tiempo NO cambia sin importar cuántos equipos haya, porque no se están "repartiendo" el trabajo entre sí. Distinguir estos dos casos es la trampa más común de este tema.'}
   ],
   questions:[
     q('En un curso de 40 estudiantes, el 35% obtuvo desempeño superior. ¿Cuántos estudiantes fueron?','12','14','16','18',1,'35% de 40 = 0.35 × 40 = 14 estudiantes.'),
@@ -274,10 +280,11 @@ const SUBJECTS = [
 { id:'psicotecnica', num:'03', title:'Psicotécnica / Competencias Ciudadanas', meta:'30 preguntas · juicio situacional: liderazgo, ética, trabajo en equipo, ciudadanía', type:'oficial',
   chunkSize:10,
   theory:[
-    {tag:'Qué mide', text:'No mide conocimientos teóricos, sino cómo actuarías ante situaciones reales de convivencia, ética profesional, liderazgo y trabajo en equipo. Se presenta como un caso corto con 4 respuestas posibles, todas "razonables" en apariencia.'},
-    {tag:'Criterio de la clave correcta', text:'La opción correcta casi siempre prioriza: <b>diálogo antes que sanción</b>, <b>corresponsabilidad antes que imposición unilateral</b>, y <b>bienestar colectivo antes que conveniencia individual o evasión del problema</b>.'},
-    {tag:'Opciones a descartar', text:'Descarta siempre las opciones extremas: las puramente punitivas (sancionar sin diálogo previo), las evasivas (ignorar el problema o "no es mi función") y las que exponen públicamente a un estudiante o colega.'},
-    {tag:'Base normativa', text:'Muchos casos se relacionan con la <b>Ley 1620/2013</b> (rutas de convivencia escolar) y el <b>Decreto 1421/2017</b> (inclusión): ante situaciones de acoso, discriminación o posible maltrato, la respuesta correcta casi siempre implica activar la ruta institucional formal, no resolverlo "por cuenta propia".'}
+    {tag:'Qué mide y cómo se ve una pregunta', text:'No mide conocimientos teóricos, sino cómo actuarías ante situaciones reales de convivencia, ética profesional, liderazgo y trabajo en equipo. Se presenta como un caso corto de 2-4 líneas, seguido de 4 respuestas posibles que suelen sonar "todas razonables" a primera lectura — ese es justamente el reto: no se trata de identificar una opción absurda, sino la <b>mejor</b> entre varias aceptables.'},
+    {tag:'Criterio de la clave correcta', text:'La opción correcta casi siempre combina tres principios: <b>diálogo antes que sanción</b> (abordar la situación conversando antes de imponer un castigo), <b>corresponsabilidad antes que imposición unilateral</b> (involucrar a las partes en la solución, no decidir solo por ellas), y <b>bienestar colectivo antes que conveniencia individual o evasión del problema</b> (no se premia "quitarse el problema de encima").'},
+    {tag:'Opciones a descartar — cómo reconocerlas', text:'Casi siempre hay dos opciones fáciles de eliminar por ser extremas: una <b>puramente punitiva</b> (sancionar, prohibir o denunciar sin ningún diálogo previo) y una <b>evasiva</b> (ignorar el problema, decir "no es mi función" o remitirlo sin ningún acompañamiento). Eso deja generalmente dos opciones "parecidas" entre las que hay que decidir — ahí es donde se aplica el criterio anterior: la que prioriza diálogo, corresponsabilidad y bienestar colectivo suele ganarle a la que solo resuelve el problema superficialmente o de forma unilateral.'},
+    {tag:'Base normativa detrás de los casos', text:'Muchos casos se relacionan directamente con la <b>Ley 1620/2013</b> (rutas de convivencia escolar) y el <b>Decreto 1421/2017</b> (inclusión). Ante situaciones de acoso, discriminación o posible maltrato, la respuesta correcta casi siempre implica <b>activar la ruta institucional formal</b> (informar al comité de convivencia, a coordinación, o seguir el protocolo establecido), nunca resolverlo "por cuenta propia" ni tampoco delegarlo por completo sin acompañamiento.'},
+    {tag:'Caso resuelto paso a paso', text:'<b>Caso:</b> "Un estudiante confiesa ser víctima de acoso en redes sociales por compañeros. ¿Qué hace el docente?" Opciones típicas: (a) decirle que lo resuelva solo — evasiva, descartada; (b) escucharlo, contenerlo y activar la ruta institucional (Ley 1620) — combina diálogo + protocolo formal; (c) hablar directamente con los agresores sin informar a nadie — resuelve "por cuenta propia", sin respaldo institucional, riesgoso; (d) sugerirle cambiar de colegio — evade el problema en vez de resolverlo. La respuesta correcta es (b), porque es la única que combina apoyo emocional inmediato con el uso del canal institucional formal previsto por la ley.'}
   ],
   questions:[
     q('Un colega le pide "prestarle" las respuestas de un examen para un estudiante con dificultades. ¿Qué hace?','Acceder, es una forma de ayudar','Negarse y proponer estrategias formales de apoyo académico','Ignorar la petición sin explicación','Informar de inmediato a la Secretaría de Educación',1,'La respuesta ética rechaza la conducta indebida y ofrece una alternativa constructiva, sin evadir ni denunciar sin diálogo previo.'),
@@ -316,11 +323,12 @@ const SUBJECTS = [
 { id:'pedagogico', num:'04', title:'Componente Pedagógico', meta:'30 preguntas · didáctica, currículo, evaluación, inclusión', type:'oficial',
   chunkSize:10,
   theory:[
-    {tag:'Peso e importancia', text:'Junto al disciplinar, es uno de los componentes de mayor ponderación en la prueba escrita. Se presenta casi siempre como un caso de aula con varias estrategias didácticas posibles.'},
-    {tag:'Evaluación formativa vs. sumativa', text:'La <b>formativa</b> acompaña el proceso y retroalimenta para mejorar el aprendizaje; la <b>sumativa</b> certifica un resultado final. La CNSC casi siempre premia respuestas que reflejan el enfoque formativo: usar el error como oportunidad, ajustar la enseñanza según resultados, diversificar formas de evaluar.'},
-    {tag:'Diferenciación e inclusión', text:'Ante estudiantes con distintos ritmos (muy avanzados, con dificultades, o con discapacidad), la clave correcta siempre implica <b>adaptar</b> la actividad o la evaluación, apoyado en el PIAR cuando aplica — nunca excluir, ni "nivelar hacia abajo" a todo el grupo.'},
-    {tag:'Aprendizaje significativo', text:'Las secuencias didácticas más valoradas parten de una situación o pregunta real, conectan con los saberes previos del estudiante, y avanzan hacia el concepto y la práctica guiada — no al revés (teoría aislada → examen).'},
-    {tag:'Referentes curriculares', text:'Los <b>Derechos Básicos de Aprendizaje (DBA)</b> y los <b>Estándares Básicos de Competencias</b> del MEN son el referente nacional que orienta —sin sustituir— la autonomía curricular de cada institución (PEI).'}
+    {tag:'Peso e importancia', text:'Junto al disciplinar, es uno de los componentes de mayor ponderación en la prueba escrita. Se presenta casi siempre como un caso de aula concreto (un grupo, un estudiante, una situación de enseñanza) seguido de varias estrategias didácticas posibles entre las que hay que elegir la más adecuada — no la más exigente ni la más simple, sino la más coherente pedagógicamente con la situación descrita.'},
+    {tag:'Evaluación formativa vs. sumativa', text:'La <b>evaluación formativa</b> acompaña el proceso de aprendizaje y retroalimenta al estudiante para que mejore mientras aún está aprendiendo; la <b>evaluación sumativa</b> certifica un resultado final, generalmente con una nota. La CNSC casi siempre premia respuestas que reflejan el enfoque formativo: usar el error como oportunidad de aprendizaje en vez de solo penalizarlo, ajustar la enseñanza según los resultados observados, y diversificar las formas de evaluar (no depender solo del examen escrito) para que distintos estudiantes puedan demostrar lo que saben.'},
+    {tag:'Diferenciación e inclusión', text:'Ante estudiantes con distintos ritmos de aprendizaje (unos muy avanzados, otros con dificultades, o con discapacidad), la clave correcta siempre implica <b>adaptar</b> la actividad o la forma de evaluar, apoyándose en el PIAR cuando aplica (Decreto 1421/2017) — nunca excluir al estudiante de la actividad, y tampoco "nivelar hacia abajo" bajando la exigencia de todo el grupo por igual.'},
+    {tag:'Aprendizaje significativo', text:'Las secuencias didácticas mejor valoradas parten de una situación o pregunta real y relevante para el estudiante, conectan con sus saberes previos, y solo después avanzan hacia el concepto formal y la práctica guiada — nunca al revés (teoría aislada y descontextualizada → examen). Esta secuencia (situación → conceptos → práctica guiada → producto) aparece una y otra vez como la respuesta correcta en preguntas de planeación de unidad.'},
+    {tag:'Referentes curriculares', text:'Los <b>Derechos Básicos de Aprendizaje (DBA)</b> y los <b>Estándares Básicos de Competencias</b> del Ministerio de Educación son el referente nacional que orienta —pero no sustituye— la autonomía curricular de cada institución, plasmada en su Proyecto Educativo Institucional (PEI). En preguntas sobre el propósito de los DBA, la respuesta correcta suele describirlos como "aprendizajes estructurantes esperados por grado, como referente nacional", nunca como algo opcional o reemplazable por el PEI.'},
+    {tag:'Caso resuelto paso a paso', text:'<b>Caso:</b> "Un estudiante domina la teoría de programación pero tiene bajo desempeño en evaluaciones escritas tradicionales. ¿Qué hace el docente?" Opciones típicas: (a) mantener solo evaluaciones escritas "para ser objetivo" — ignora que el formato mismo puede estar limitando al estudiante; (b) diversificar la evaluación con proyectos prácticos que permitan demostrar la competencia de otra forma — coherente con evaluación auténtica y formativa; (c) bajarle la exigencia sin cambiar el formato — no resuelve el problema real (el formato, no el nivel de exigencia); (d) recomendar que cambie de asignatura — evasiva y desproporcionada. La respuesta correcta es (b): el problema no es cuánto sabe el estudiante, sino que el instrumento de evaluación no está capturando bien ese saber.'}
   ],
   questions:[
     q('Un estudiante domina la teoría de programación pero tiene bajo desempeño en evaluaciones escritas tradicionales. ¿Qué hace?','Mantener solo evaluaciones escritas para ser "objetivo"','Diversificar la evaluación con proyectos prácticos que permitan demostrar la competencia','Bajarle la exigencia sin ajustar la evaluación','Recomendar que cambie de asignatura',1,'La diversificación evaluativa permite demostrar la competencia real de distintas formas, alineado con la evaluación formativa.'),
@@ -359,12 +367,12 @@ const SUBJECTS = [
 { id:'disciplinar', num:'05', title:'Dominio Disciplinar · Sistemas e Informática', meta:'40 preguntas · técnico + aplicación didáctica', type:'oficial',
   chunkSize:10,
   theory:[
-    {tag:'Base curricular', text:'Se ancla en los <b>DBA y Orientaciones de Tecnología e Informática del MEN</b>, organizados en 4 ejes: naturaleza y evolución de la tecnología, apropiación y uso, solución de problemas con tecnología, y tecnología y sociedad.'},
-    {tag:'Redes y hardware', text:'Repasa: tipos de red (LAN/WAN), dispositivos (switch, router, firewall), protocolos clave (DHCP, DNS, HTTPS, TCP), y componentes básicos (RAM vs. almacenamiento).'},
-    {tag:'Bases de datos', text:'Repasa: modelo entidad-relación, claves primarias y foráneas, tipos de relación (uno a muchos, muchos a muchos), normalización y consultas SQL básicas.'},
-    {tag:'Programación y pensamiento computacional', text:'Repasa: estructuras de control (secuencia, selección, repetición), descomposición, abstracción, programación orientada a objetos (herencia), y el uso de pseudocódigo/programación por bloques como estrategia didáctica inicial.'},
-    {tag:'Seguridad y ética digital', text:'Repasa: phishing, virus vs. ransomware, backups, y los principios de ciudadanía digital y derechos de autor que se enseñan en el aula.'},
-    {tag:'Formato mixto', text:'Este componente combina preguntas técnicas puras (definiciones, funcionamiento) con preguntas de <b>aplicación didáctica</b>: cómo enseñarías ese contenido a un estudiante de básica o media. Ambas formas aparecen por igual.'}
+    {tag:'Base curricular', text:'Se ancla en los <b>DBA y Orientaciones de Tecnología e Informática del MEN</b>, organizados en 4 ejes: naturaleza y evolución de la tecnología (comprender qué es y cómo ha cambiado), apropiación y uso (usarla crítica y reflexivamente, no solo instrumentalmente), solución de problemas con tecnología (pensamiento computacional, diseño), y tecnología y sociedad (impacto ético, ambiental, cultural).'},
+    {tag:'Redes y hardware — a repasar', text:'<b>Tipos de red:</b> LAN (área reducida, ej. un colegio) vs. WAN (área extensa, ej. internet). <b>Dispositivos clave:</b> el switch dirige el tráfico de forma inteligente hacia el puerto correcto (a diferencia del hub, que lo transmite a todos); el router conecta redes distintas; el firewall filtra el tráfico según reglas de seguridad. <b>Protocolos:</b> DHCP asigna IPs automáticamente; DNS traduce nombres de dominio a direcciones IP; HTTPS añade cifrado a la navegación web; TCP opera en la capa de transporte del modelo OSI, garantizando entrega confiable de datos. <b>Memoria:</b> la RAM es volátil (se borra al apagar) y rápida para procesos activos; el almacenamiento (HDD/SSD) es permanente y más lento.'},
+    {tag:'Bases de datos — a repasar', text:'El <b>modelo entidad-relación</b> organiza la información en tablas relacionadas entre sí. Una <b>clave primaria</b> identifica de forma única cada registro de una tabla, sin valores nulos ni repetidos; una <b>clave foránea</b> conecta una tabla con otra. Las relaciones pueden ser uno a muchos (un curso tiene muchos estudiantes) o muchos a muchos (un estudiante puede estar en varios cursos y viceversa — esta última se resuelve con una tabla intermedia). La <b>normalización</b> organiza los datos para reducir redundancia y evitar anomalías al insertar, actualizar o eliminar registros. <b>SQL</b> es el lenguaje estándar para consultar y administrar estos datos.'},
+    {tag:'Programación y pensamiento computacional — a repasar', text:'Las <b>estructuras de control</b> básicas son: secuencial (instrucciones una tras otra), de selección (if/else, según una condición) y de repetición (bucles "para"/"mientras"). El pensamiento computacional se apoya en cuatro habilidades: <b>descomposición</b> (dividir un problema complejo en partes simples), <b>reconocimiento de patrones</b>, <b>abstracción</b> (quedarse con lo esencial, ignorando el detalle irrelevante) y <b>diseño de algoritmos</b>. En programación orientada a objetos, la <b>herencia</b> permite que una clase adquiera atributos y métodos de otra. Para introducir programación en básica secundaria, la didáctica recomendada empieza con <b>programación por bloques o pseudocódigo</b>, para separar la lógica de la sintaxis de un lenguaje específico.'},
+    {tag:'Seguridad y ética digital — a repasar', text:'El <b>phishing</b> es un ataque que engaña al usuario para obtener información confidencial mediante suplantación (correos o sitios falsos). Un <b>virus</b> se replica infectando archivos; un <b>ransomware</b> cifra los datos de la víctima y exige un pago para liberarlos — son mecanismos distintos, no sinónimos. Las <b>copias de seguridad (backups)</b> periódicas son la principal defensa ante pérdida de información. En el aula, la ética digital se enseña priorizando el respeto a los derechos de autor y la correcta atribución de fuentes al usar imágenes o contenidos de internet.'},
+    {tag:'Formato mixto de las preguntas', text:'Este componente combina preguntas técnicas puras (definiciones, funcionamiento de un protocolo o estructura) con preguntas de <b>aplicación didáctica</b>: dado un contenido técnico, cuál es la mejor forma de enseñarlo a un estudiante de básica o media. Ambas formas aparecen aproximadamente por igual, así que no basta con saber la teoría técnica — hay que poder traducirla en una decisión pedagógica razonable.'}
   ],
   questions:[
     q('¿Qué dispositivo de red dirige el tráfico de forma inteligente hacia el destinatario correcto, a diferencia de un hub?','Switch','Módem','Repetidor','Firewall',0,'El switch dirige el tráfico hacia el puerto correcto, a diferencia del hub que lo transmite a todos.'),
@@ -446,6 +454,8 @@ let currentQuestions = [];
 let currentIndex = 0;
 let currentScore = 0;
 let currentAnswered = false;
+let isSimulacro = false;
+let simulacroBreakdown = {};
 
 const STORAGE_KEY = 'cnsc-sistemas-progress-v2';
 
@@ -579,6 +589,26 @@ function renderDashboard(){
     list.appendChild(card);
   });
 
+  const simCard = document.createElement('div');
+  simCard.className = 'subject-card simulacro-card';
+  simCard.innerHTML = `
+    <div class="subject-head" style="cursor:default;">
+      <div class="subject-num">SG</div>
+      <div class="subject-body">
+        <p class="subject-title">Simulacro General <span class="type-tag" style="border-color:var(--gold);color:var(--gold);">OPCIONAL · MEZCLADO</span></p>
+        <p class="subject-meta">Preguntas de los 6 temas oficiales, en la misma proporción del examen real, con desglose de resultados por tema al final.</p>
+      </div>
+    </div>
+    <div class="panel-inner" style="padding-top:0;">
+      <div class="blocks-grid">
+        <button class="block-chip" onclick="startSimulacro(30)"><span class="block-num">Corto</span><span class="block-title">30 preguntas</span></button>
+        <button class="block-chip" onclick="startSimulacro(50)"><span class="block-num">Medio</span><span class="block-title">50 preguntas</span></button>
+        <button class="block-chip" onclick="startSimulacro(90)"><span class="block-num">Largo</span><span class="block-title">90 preguntas</span></button>
+      </div>
+    </div>
+  `;
+  list.appendChild(simCard);
+
   const total = totalBlocks();
   const doneC = doneBlocks();
   document.getElementById('progressFill').style.width = (total? (doneC/total*100):0)+'%';
@@ -595,6 +625,7 @@ function showDashboard(){
 
 /* ============ QUIZ ENGINE ============ */
 function startBlock(subjectId, blockIndex){
+  isSimulacro = false;
   currentSubject = SUBJECTS.find(s=>s.id===subjectId);
   currentBlockIndex = blockIndex;
   currentQuestions = currentSubject.blocks[blockIndex];
@@ -607,17 +638,46 @@ function startBlock(subjectId, blockIndex){
   window.scrollTo(0,0);
 }
 
+function buildSimulacro(n){
+  const oficiales = SUBJECTS.filter(s=>s.type==='oficial');
+  const totalQ = oficiales.reduce((a,s)=>a+s.questions.length,0);
+  let pool = [];
+  oficiales.forEach(s=>{
+    const share = Math.max(1, Math.round((s.questions.length/totalQ)*n));
+    const shuffled = [...s.questions].sort(()=>Math.random()-0.5);
+    shuffled.slice(0,share).forEach(qq=>pool.push(Object.assign({source:s.title, sourceId:s.id}, qq)));
+  });
+  pool.sort(()=>Math.random()-0.5);
+  return pool.slice(0,n);
+}
+
+function startSimulacro(n){
+  isSimulacro = true;
+  currentSubject = null;
+  currentQuestions = buildSimulacro(n);
+  currentIndex = 0;
+  currentScore = 0;
+  simulacroBreakdown = {};
+  document.getElementById('dashboardView').classList.add('hidden');
+  document.getElementById('quizView').classList.remove('hidden');
+  document.getElementById('resultView').classList.add('hidden');
+  renderQuestion();
+  window.scrollTo(0,0);
+}
+
 function renderQuestion(){
   currentAnswered = false;
   const qd = currentQuestions[currentIndex];
-  document.getElementById('quizProgress').textContent =
-    `${currentSubject.title} · Bloque ${currentBlockIndex+1} · Pregunta ${currentIndex+1} de ${currentQuestions.length}`;
+  const title = isSimulacro ? qd.source : currentSubject.title;
+  document.getElementById('quizProgress').textContent = isSimulacro
+    ? `Simulacro General · ${title} · Pregunta ${currentIndex+1} de ${currentQuestions.length}`
+    : `${currentSubject.title} · Bloque ${currentBlockIndex+1} · Pregunta ${currentIndex+1} de ${currentQuestions.length}`;
 
   const area = document.getElementById('quizArea');
   const letters = ['A','B','C','D'];
   area.innerHTML = `
     <div class="q-card">
-      <div class="q-eyebrow">${currentSubject.title}</div>
+      <div class="q-eyebrow">${title}</div>
       ${qd.type==='passage' ? `<div class="q-passage">${qd.passage}</div>` : ''}
       <p class="q-text">${qd.text}</p>
       <div class="options" id="optionsArea">
@@ -629,7 +689,7 @@ function renderQuestion(){
       </div>
       <div class="feedback" id="feedbackBox"></div>
       <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
-        ${currentIndex===currentQuestions.length-1 ? 'Ver resultado del bloque →' : 'Siguiente pregunta →'}
+        ${currentIndex===currentQuestions.length-1 ? (isSimulacro?'Ver resultado del simulacro →':'Ver resultado del bloque →') : 'Siguiente pregunta →'}
       </button>
     </div>
   `;
@@ -647,13 +707,20 @@ function selectOption(i){
     else if(idx===i) el.classList.add('incorrect');
   });
   const fb = document.getElementById('feedbackBox');
-  if(i===correct){
+  const isCorrect = i===correct;
+  if(isCorrect){
     currentScore++;
     fb.classList.add('show');
     fb.innerHTML = `<b>Correcto.</b> ${qd.explanation}`;
   } else {
     fb.classList.add('show','wrong');
     fb.innerHTML = `<b>La respuesta correcta era la opción ${['A','B','C','D'][correct]}.</b> ${qd.explanation}`;
+  }
+  if(isSimulacro){
+    const sid = qd.sourceId;
+    if(!simulacroBreakdown[sid]) simulacroBreakdown[sid] = {title: qd.source, total:0, correct:0};
+    simulacroBreakdown[sid].total++;
+    if(isCorrect) simulacroBreakdown[sid].correct++;
   }
   document.getElementById('nextBtn').classList.add('show');
 }
@@ -663,7 +730,7 @@ function nextQuestion(){
     currentIndex++;
     renderQuestion();
   } else {
-    finishBlock();
+    isSimulacro ? finishSimulacro() : finishBlock();
   }
 }
 
@@ -697,12 +764,39 @@ async function finishBlock(){
   document.getElementById('resultModuleName').textContent = `${currentSubject.title.toUpperCase()} · BLOQUE ${currentBlockIndex+1}`;
   document.getElementById('resultScore').textContent = pct+'%';
   document.getElementById('resultMsg').textContent = msg;
+  document.getElementById('resultBreakdown').innerHTML = '';
+  document.getElementById('retryBtn').textContent = 'Repetir bloque';
   openSubjectId = currentSubject.id;
   window.scrollTo(0,0);
 }
 
+function finishSimulacro(){
+  const pct = Math.round((currentScore/currentQuestions.length)*100);
+  const band = masteryBand(pct);
+  let msg;
+  if(pct<60) msg = `${band.emoji} Por debajo del mínimo de referencia (60/100) de la CNSC. Revisa el desglose por tema abajo para saber dónde reforzar.`;
+  else if(pct<80) msg = `${band.emoji} Superaste el mínimo de referencia. Sigue subiendo hacia la meta de preparación (80-90).`;
+  else msg = `${band.emoji} Estás en zona objetivo o superior. Buen resultado en un simulacro mixto.`;
+
+  const rows = Object.values(simulacroBreakdown).map(b=>{
+    const p = Math.round((b.correct/b.total)*100);
+    const bd = masteryBand(p);
+    return `<div class="breakdown-row"><span>${b.title}</span><span class="${bd.cls}">${b.correct}/${b.total} · ${p}%</span></div>`;
+  }).join('');
+
+  document.getElementById('quizView').classList.add('hidden');
+  document.getElementById('resultView').classList.remove('hidden');
+  document.getElementById('resultModuleName').textContent = 'SIMULACRO GENERAL';
+  document.getElementById('resultScore').textContent = pct+'%';
+  document.getElementById('resultMsg').textContent = msg;
+  document.getElementById('resultBreakdown').innerHTML = `<div class="breakdown-box">${rows}</div>`;
+  document.getElementById('retryBtn').textContent = 'Hacer otro simulacro';
+  window.scrollTo(0,0);
+}
+
 function retryQuiz(){
-  startBlock(currentSubject.id, currentBlockIndex);
+  if(isSimulacro) startSimulacro(currentQuestions.length);
+  else startBlock(currentSubject.id, currentBlockIndex);
 }
 
 /* ============ INIT ============ */
